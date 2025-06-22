@@ -16,8 +16,8 @@ sudo dnf install -y mesa-libGLU mesa-libGLU-devel
 wget https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3.tar.gz
 tar -zxvf cmake-3.30.3.tar.gz
 pushd cmake-3.30.3
-time ./bootstrap --parallel=$(nproc)  # 32 or whatever your machine allows
-time make -j $(nproc)  # 32 or whatever your machine allows
+time ./bootstrap --parallel=$(nproc)
+time make -j $(nproc)
 sudo make install
 
 # logout/login

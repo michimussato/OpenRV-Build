@@ -2,12 +2,11 @@ BootStrap: docker
 From: rockylinux:9
 
 %post
-    export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
-    dnf install -y git
-    dnf install -y epel-release
-    dnf config-manager --set-enabled crb devel
-    dnf install -y \
+    time dnf install -y git which
+    time dnf install -y epel-release
+    time dnf config-manager --set-enabled crb devel
+    time dnf install -y \
         alsa-lib-devel \
         autoconf \
         automake \
@@ -55,17 +54,17 @@ From: rockylinux:9
          yasm \
          zip \
          zlib-devel
-    dnf config-manager --set-disabled devel
-    dnf install -y \
+    time dnf config-manager --set-disabled devel
+    time dnf install -y \
         mesa-libGLU \
         mesa-libGLU-devel
-    dnf clean packages
-    dnf autoremove
+    time dnf clean packages
+    time dnf autoremove
 
     # Note: /usr/bin/python needs to exist for OpenRV to build correctly.
     ln -sf /usr/bin/python3.9 /usr/bin/python
     # python -m pip install --root-user-action=ignore --upgrade pip setuptools setuptools_scm wheel
-    python -m pip install --upgrade pip setuptools setuptools_scm wheel
+    time python -m pip install --upgrade pip setuptools setuptools_scm wheel
 
     # BUILD
     mkdir -p /build
@@ -74,20 +73,22 @@ From: rockylinux:9
     mkdir -p /build/cmake
 
     pushd /build/cmake
-    curl --location \
+    time curl --location \
         --remote-name \
         https://github.com/Kitware/CMake/releases/download/v{{ CMAKE_VERSION }}/cmake-{{ CMAKE_VERSION }}.tar.gz
-    tar -zxvf cmake-{{ CMAKE_VERSION }}.tar.gz
+    time tar -zxvf cmake-{{ CMAKE_VERSION }}.tar.gz
     cd cmake-{{ CMAKE_VERSION }}
-    ./bootstrap
-    make
-    make install
+    time ./bootstrap --parallel=$(nproc)
+    time make -j $(nproc)
+    time make install
 
+    # [ $(which cmake) == "/usr/local/bin/cmake" ] || echo "wrong cmake" && exit 1
     which cmake
+    # [ $(cmake --version) == "cmake version {{ CMAKE_VERSION }}" ] || echo "wrong cmake version" && exit 1
     cmake --version
     popd
 
-    # rm -rf /build/cmake
+    rm -rf /build/cmake
 
     ## QT
     mkdir -p /build/Qt
@@ -97,35 +98,16 @@ From: rockylinux:9
     # https://doc.qt.io/qt-6/get-and-install-qt-cli.html#downloading-qt-online-installer-with-command-line-interface
     # https://doc.qt.io/archives/qt-5.15/get-and-install-qt-cli.html#downloading-qt-online-installer-with-command-line-interface
 
-    # Running out of disk space?
-    # Context:
-    # [259281] Installation space required: "8.83 GB" Temporary space required: "2.07 GB" Local repository size: "0.00 bytes"
-    # [259282] Tmp is on a different volume than the installation directory. Tmp volume mount point: "/tmp" Free space available: "7.58 GB" Install volume mount point: "/" Free space available: "226.90 GB"
-    # [259282] Installation will use 8.58 GB of disk space.
-    # If the limited size of /tmp is reached, this might be the result:
-    # [...]
-    # [3231884] installationErrorWithCancel : Installer Error : Error during installation process (qt.qt5.5152.debug_info.gcc_64):
-    # Error while extracting archive "installer://qt.qt5.5152.debug_info.gcc_64/5.15.2-0-202011130601qtnetworkauth-Linux-RHEL_7_6-GCC-Linux-RHEL_7_6-X86_64-debug-symbols.7z": Cannot write entry "/opt/Qt/5.15.2/gcc_64/lib/libQt5NetworkAuth.so.5.15.2.debug" to disk: Write failed: No space left on device.
-    # [...]
-    #
-    # Possible solution:
-    # Change TMPDIR
-    # https://gist.github.com/peteristhegreat/719db2af49af600e06722827f98c7a52?permalink_comment_id=4403036#gistcomment-4403036
-    # https://www.baeldung.com/linux/change-tmp-directory-path
-    # https://www.ibm.com/docs/en/idr/10.2.1?topic=windows-setting-tmpdir-environment-variable-linux-unix
-
-    curl --location \
+    time curl --location \
         --remote-name \
         https://d13lb3tujbc8s0.cloudfront.net/onlineinstallers/qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
     chmod a+x qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
-    # export QT_QPA_PLATFORM=offscreen
-    # export QT_DEBUG_PLUGINS=1
     # Not required:
     # - Logs
     # - Android
     # - iOS
     # - WebAssembly
-    ./qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run \
+    time ./qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run \
         --verbose \
         --email {{ QT_EMAIL }} \
         --password {{ QT_PASSWORD }} \
@@ -156,6 +138,8 @@ From: rockylinux:9
         qt.qt5.5152.qtquick3d
     popd
 
+    rm -rf /build/Qt
+
     ## OPENRV
     mkdir -p /build/OpenRV
 
@@ -166,14 +150,25 @@ From: rockylinux:9
     # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
     # cd OpenRV
     python -m pip install --requirement requirements.txt
-    source ./rvcmds.sh
-    # rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac"
-    rvsetup
+
+    export QT_HOME="${QT_ROOT}/${QT_HOME_VERSION}/gcc_64"
+    # RV_HOME="${RV_HOME:-$SCRIPT_HOME}"
+    # RV_BUILD="${RV_BUILD:-${RV_HOME}/_build}"
+    # RV_BUILD_DEBUG="${RV_BUILD_DEBUG:-${RV_HOME}/_build_debug}"
+    # RV_INST="${RV_INST:-${RV_HOME}/_install}"
+    export RV_INST="${RV_ROOT}"
+    # RV_INST_DEBUG="${RV_INST_DEBUG:-${RV_HOME}/_install_debug}"
+    # RV_BUILD_PARALLELISM="${RV_BUILD_PARALLELISM:-$(python3 -c 'import os; print(os.cpu_count())')}"
+
+    source rvcmds.sh
+    time rvsetup
     rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc;dnxhd" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac;dnxhd"
-    rvbuildt dependencies
-    rvbuildt main_executable
+    time rvbuildt dependencies
+    time rvbuildt main_executable
     rvinst
     popd
+
+    rm -rf /build/OpenRV
 
     # CLEANUP
 
