@@ -31,29 +31,29 @@ From: rockylinux:9
         libXrandr \
         libXtst \
         libXcursor\
-         mesa-libOSMesa \
-         mesa-libOSMesa-devel \
-         meson \
-         ninja-build \
-         openssl-devel \
-         patch \
-         perl-FindBin \
-         pulseaudio-libs \
-         pulseaudio-libs-glib2 \
-         ocl-icd \
-         ocl-icd-devel \
-         opencl-headers \
-         python3 \
-         python3-devel \
-         qt5-qtbase-devel \
-         readline-devel \
-         sqlite-devel \
-         tcl-devel \
-         tcsh \
-         tk-devel \
-         yasm \
-         zip \
-         zlib-devel
+        mesa-libOSMesa \
+        mesa-libOSMesa-devel \
+        meson \
+        ninja-build \
+        openssl-devel \
+        patch \
+        perl-FindBin \
+        pulseaudio-libs \
+        pulseaudio-libs-glib2 \
+        ocl-icd \
+        ocl-icd-devel \
+        opencl-headers \
+        python3 \
+        python3-devel \
+        qt5-qtbase-devel \
+        readline-devel \
+        sqlite-devel \
+        tcl-devel \
+        tcsh \
+        tk-devel \
+        yasm \
+        zip \
+        zlib-devel
     time dnf config-manager --set-disabled devel
     time dnf install -y \
         mesa-libGLU \
@@ -154,16 +154,12 @@ From: rockylinux:9
     python -m pip install --requirement requirements.txt
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
-    # RV_HOME="${RV_HOME:-$SCRIPT_HOME}"
-    # RV_BUILD="${RV_BUILD:-${RV_HOME}/_build}"
-    # RV_BUILD_DEBUG="${RV_BUILD_DEBUG:-${RV_HOME}/_build_debug}"
-    # RV_INST="${RV_INST:-${RV_HOME}/_install}"
-    # RV_INST_DEBUG="${RV_INST_DEBUG:-${RV_HOME}/_install_debug}"
-    # RV_BUILD_PARALLELISM="${RV_BUILD_PARALLELISM:-$(python3 -c 'import os; print(os.cpu_count())')}"
 
     source ./rvcmds.sh
     time rvsetup
-    rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc;dnxhd" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac;dnxhd"
+    rvcfg \
+        -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="{{ FFMPEG_NON_FREE_DECODERS_TO_ENABLE }}" \
+        -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="{{ FFMPEG_NON_FREE_ENCODERS_TO_ENABLE }}"
     time rvbuildt dependencies
     time rvbuildt main_executable
     rvinst
