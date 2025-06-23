@@ -149,6 +149,8 @@ From: rockylinux:9
         https://github.com/AcademySoftwareFoundation/OpenRV.git .
     # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
     # cd OpenRV
+    which python
+    # [ $(python --version) == "Python 3.9.x" ] || echo "wrong Python version" && exit 1
     python -m pip install --requirement requirements.txt
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
@@ -156,7 +158,6 @@ From: rockylinux:9
     # RV_BUILD="${RV_BUILD:-${RV_HOME}/_build}"
     # RV_BUILD_DEBUG="${RV_BUILD_DEBUG:-${RV_HOME}/_build_debug}"
     # RV_INST="${RV_INST:-${RV_HOME}/_install}"
-    export RV_INST="{{ RV_ROOT }}"
     # RV_INST_DEBUG="${RV_INST_DEBUG:-${RV_HOME}/_install_debug}"
     # RV_BUILD_PARALLELISM="${RV_BUILD_PARALLELISM:-$(python3 -c 'import os; print(os.cpu_count())')}"
 
@@ -183,6 +184,6 @@ From: rockylinux:9
 %help
     # Build
     # create .env file and define QT_EMAIL and QT_PASSWORD - the credentials from your Qt Account
-    apptainer build --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def
+    time apptainer build --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def
     # Run
     apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/rv/bin/rv
