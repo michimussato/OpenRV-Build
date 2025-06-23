@@ -1,5 +1,7 @@
 BootStrap: docker
+# https://hub.docker.com/r/rockylinux/rockylinux/tags
 From: rockylinux:9
+# From: rockylinux:9.6
 
 %post
 
@@ -13,6 +15,7 @@ From: rockylinux:9
         avahi-compat-libdns_sd-devel \
         bison \
         bzip2-devel \
+        cmake-gui \
         curl-devel \
         flex \
         gcc \
@@ -30,7 +33,7 @@ From: rockylinux:9
         libXdamage \
         libXrandr \
         libXtst \
-        libXcursor\
+        libXcursor \
         mesa-libOSMesa \
         mesa-libOSMesa-devel \
         meson \
@@ -48,6 +51,7 @@ From: rockylinux:9
         qt5-qtbase-devel \
         readline-devel \
         sqlite-devel \
+        systemd-devel \
         tcl-devel \
         tcsh \
         tk-devel \
@@ -58,13 +62,13 @@ From: rockylinux:9
     time dnf install -y \
         mesa-libGLU \
         mesa-libGLU-devel
-    time dnf clean packages
-    time dnf autoremove
+    # time dnf clean packages
+    # time dnf autoremove
 
     # Note: /usr/bin/python needs to exist for OpenRV to build correctly.
-    ln -sf /usr/bin/python3.9 /usr/bin/python
+    # ln -sf /usr/bin/python3.9 /usr/bin/python
     # python -m pip install --root-user-action=ignore --upgrade pip setuptools setuptools_scm wheel
-    time python -m pip install --upgrade pip setuptools setuptools_scm wheel
+    # time python3 -m pip install --upgrade pip setuptools setuptools_scm wheel
 
     # BUILD
     mkdir -p /build
@@ -88,7 +92,7 @@ From: rockylinux:9
     cmake --version
     popd
 
-    rm -rf /build/cmake
+    # rm -rf /build/cmake
 
     ## QT
     mkdir -p /build/Qt
@@ -109,9 +113,9 @@ From: rockylinux:9
     # - WebAssembly
     time ./qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run \
         --verbose \
-        --email {{ QT_EMAIL }} \
-        --password {{ QT_PASSWORD }} \
-        --root {{ QT_ROOT }} \
+        --email \"{{ QT_EMAIL }}\" \
+        --password \"{{ QT_PASSWORD }}\" \
+        --root \"{{ QT_ROOT }}\" \
         --platform minimal \
         --confirm-command \
         --accept-licenses \
@@ -138,7 +142,7 @@ From: rockylinux:9
         qt.qt5.5152.qtquick3d
     popd
 
-    rm -rf /build/Qt
+    # rm -rf /build/Qt
 
     ## OPENRV
     mkdir -p /build/OpenRV
@@ -146,31 +150,33 @@ From: rockylinux:9
     pushd /build/OpenRV
     git clone \
         --recursive \
-        https://github.com/AcademySoftwareFoundation/OpenRV.git .
+        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        .
     # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
     # cd OpenRV
-    which python
-    # [ $(python --version) == "Python 3.9.x" ] || echo "wrong Python version" && exit 1
-    python -m pip install --requirement requirements.txt
+    which python3
+    python3 --version
+    # [ $(python3 --version) == "Python 3.9.x" ] || echo "wrong Python version" && exit 1
+    python3 -m pip install --requirement requirements.txt
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
     source ./rvcmds.sh
     time rvsetup
     rvcfg \
-        -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="{{ FFMPEG_NON_FREE_DECODERS_TO_ENABLE }}" \
-        -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="{{ FFMPEG_NON_FREE_ENCODERS_TO_ENABLE }}"
+        -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE=\"{{ FFMPEG_NON_FREE_DECODERS_TO_ENABLE }}\" \
+        -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=\"{{ FFMPEG_NON_FREE_ENCODERS_TO_ENABLE }}\"
     time rvbuildt dependencies
     time rvbuildt main_executable
     rvinst
     popd
 
-    rm -rf /build/OpenRV
+    # rm -rf /build/OpenRV
 
     # CLEANUP
 
     # build
-    rm -rf /build
+    # rm -rf /build
 
 %labels
     Author "Jean First"

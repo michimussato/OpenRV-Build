@@ -3,15 +3,76 @@
 ```shell
 source .env
 
-sudo dnf install -y git
+sudo dnf install -y \
+    git \
+    wget
 
-sudo dnf install -y epel-release
-sudo dnf config-manager --set-enabled crb devel
-sudo dnf install -y alsa-lib-devel autoconf automake avahi-compat-libdns_sd-devel bison bzip2-devel cmake-gui curl-devel flex gcc gcc-c++ libXcomposite libXi-devel libaio-devel libffi-devel nasm ncurses-devel nss libtool libxkbcommon libXcomposite libXdamage libXrandr libXtst libXcursor mesa-libOSMesa mesa-libOSMesa-devel meson ninja-build openssl-devel patch perl-FindBin pulseaudio-libs pulseaudio-libs-glib2 ocl-icd ocl-icd-devel opencl-headers python3 python3-devel qt5-qtbase-devel readline-devel sqlite-devel systemd-devel tcl-devel tcsh tk-devel yasm zip zlib-devel 
+sudo dnf install -y \
+    epel-release
 
-sudo dnf config-manager --set-disabled devel
+sudo dnf config-manager \
+    --set-enabled \
+    crb \
+    devel
 
-sudo dnf install -y mesa-libGLU mesa-libGLU-devel
+sudo dnf install -y \
+    alsa-lib-devel \
+    autoconf \
+    automake \
+    avahi-compat-libdns_sd-devel \
+    bison \
+    bzip2-devel \
+    cmake-gui \
+    curl-devel \
+    flex \
+    gcc \
+    gcc-c++ \
+    libXcomposite \
+    libXi-devel \
+    libaio-devel \
+    libffi-devel \
+    nasm \
+    ncurses-devel \
+    nss \
+    libtool \
+    libxkbcommon \
+    libXcomposite \
+    libXdamage \
+    libXrandr \
+    libXtst \
+    libXcursor \
+    mesa-libOSMesa \
+    mesa-libOSMesa-devel \
+    meson \
+    ninja-build \
+    openssl-devel \
+    patch \
+    perl-FindBin \
+    pulseaudio-libs \
+    pulseaudio-libs-glib2 \
+    ocl-icd \
+    ocl-icd-devel \
+    opencl-headers \
+    python3 \
+    python3-devel \
+    qt5-qtbase-devel \
+    readline-devel \
+    sqlite-devel \
+    systemd-devel \
+    tcl-devel \
+    tcsh \
+    tk-devel \
+    yasm \
+    zip \
+    zlib-devel
+
+sudo dnf config-manager \
+    --set-disabled \
+    devel
+
+sudo dnf install -y \
+    mesa-libGLU \
+    mesa-libGLU-devel
 
 wget https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3.tar.gz
 tar -zxvf cmake-3.30.3.tar.gz
@@ -35,9 +96,9 @@ chmod a+x qt-unified-linux-x64-4.6.1-online.run
 # https://account.qt.io/s/active-installation-list
 sudo ./qt-unified-linux-x64-4.6.1-online.run \
     --verbose \
-    --email "${QT_EMAIL}" \
-    --password "${QT_PASSWORD}" \
-    --root "${QT_ROOT}" \
+    --email \"${QT_EMAIL}\" \
+    --password \"${QT_PASSWORD}\" \
+    --root \"${QT_ROOT}\" \
     --platform minimal \
     --confirm-command \
     --accept-licenses \
@@ -70,9 +131,14 @@ cd ~/git/repos
 
 mkdir -p OpenRV
 pushd OpenRV
-git clone --recursive https://github.com/AcademySoftwareFoundation/OpenRV.git .
+git clone \
+    --recursive \
+    https://github.com/AcademySoftwareFoundation/OpenRV.git \
+    .
 
 python3 -m pip install -r requirements.txt
+# python3 --version
+# Python 3.9.21
 
 export QT_HOME="${QT_ROOT}/${QT_HOME_VERSION}/gcc_64"
 # RV_HOME="${RV_HOME:-$SCRIPT_HOME}"
@@ -129,6 +195,14 @@ time rvsetup
 # - rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc;dnxhd" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac;dnxhd"
 #   - [x] build
 #   - [x] execute
+
+FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc"
+FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac"
+
+rvcfg \
+    -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" \
+    -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}"
+
 time rvbuildt dependencies
 # rvenv && cmake --build _build --config Release -v --parallel=$(nproc) --target dependencies
 time rvbuildt main_executable
