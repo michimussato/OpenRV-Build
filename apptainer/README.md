@@ -95,3 +95,36 @@ rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="hevc"
 ```
 apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/rv/bin/rv
 ```
+
+### Issues
+
+#### `GLIBC_2.38' not found
+
+- [x] Manjaro
+
+```
+$ apptainer exec --nv OpenRV.sif  /build/OpenRV/_install/bin/rv                                                127 ✘ 
+/build/OpenRV/_install/bin/rv.bin: /lib64/libc.so.6: version `GLIBC_2.38' not found (required by /.singularity.d/libs/libGLX.so.0)
+/build/OpenRV/_install/bin/rv.bin: /lib64/libc.so.6: version `GLIBC_2.38' not found (required by /.singularity.d/libs/libGLdispatch.so.0)
+```
+
+Reference: https://www.tecmint.com/install-multiple-glibc-libraries-linux/
+
+```shell
+wget https://ftp.gnu.org/gnu/glibc/glibc-2.38.tar.xz
+
+tar -xvf glibc-2.38.tar.xz
+
+cd glibc-2.38
+mkdir build
+cd build
+../configure --prefix=/usr/local/glibc-2.38
+make -j$(nproc)
+sudo make install
+
+export LD_LIBRARY_PATH=/usr/local/glibc-2.38/lib:$LD_LIBRARY_PATH
+
+/usr/local/glibc-2.38/lib/ld-2.31.so --version
+
+LD_PRELOAD=/usr/local/glibc-2.38/lib/ld-2.31.so ./your_application
+```

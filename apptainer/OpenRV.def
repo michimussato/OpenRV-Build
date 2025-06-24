@@ -62,8 +62,6 @@ From: rockylinux:9
     time dnf install -y \
         mesa-libGLU \
         mesa-libGLU-devel
-    # time dnf clean packages
-    # time dnf autoremove
 
     # Note: /usr/bin/python needs to exist for OpenRV to build correctly.
     # ln -sf /usr/bin/python3.9 /usr/bin/python
@@ -83,7 +81,7 @@ From: rockylinux:9
     time tar -zxvf cmake-{{ CMAKE_VERSION }}.tar.gz
     cd cmake-{{ CMAKE_VERSION }}
     time ./bootstrap --parallel=$(nproc)
-    time make -j $(nproc)
+    time make -j$(nproc)
     time make install
 
     # [ $(which cmake) == "/usr/local/bin/cmake" ] || echo "wrong cmake" && exit 1
@@ -181,6 +179,9 @@ From: rockylinux:9
     # $ apptainer exec --nv --bind /run/user/$UID OpenRV.sif du -hs /build
     # 15G     /build
     rm -rf /build
+
+    dnf clean packages
+    dnf autoremove
 
 %labels
     Author "Jean First"
