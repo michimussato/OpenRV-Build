@@ -1,6 +1,7 @@
 <!-- TOC -->
 * [Apptainer](#apptainer)
   * [Arch](#arch)
+    * [Secondary Deps](#secondary-deps)
   * [Debian](#debian)
 * [Red Hat](#red-hat)
 * [OpenRV](#openrv)
@@ -11,6 +12,9 @@
   * [Enable Non Free Codecs](#enable-non-free-codecs)
     * [AAC](#aac)
     * [HEVC](#hevc)
+  * [Run](#run)
+    * [Issues](#issues)
+      * [`GLIBC_2.38' not found](#glibc_238-not-found)
 <!-- TOC -->
 
 ---
@@ -18,6 +22,8 @@
 # Apptainer
 
 Install
+- `apptainer`
+- GNU `time` (vs. bash built-in time)
 
 ## Arch
 
@@ -36,13 +42,13 @@ sudo pacman -Syy gocryptfs
 ## Debian
 
 ```shell
-sudo apt-get install apptainer
+sudo apt-get install apptainer time
 ```
 
 # Red Hat
 
 ```shell
-sudo dnf install apptainer
+sudo dnf install apptainer time
 ```
 
 # OpenRV
@@ -55,13 +61,13 @@ sudo dnf install apptainer
 
 ### Alternate Approaches
 
-- https://github.com/col-one/OpenRV-Dockerfile
+- https://github.com/col-one/OpenRV-www
 - https://github.com/rubikstriangle/OpenRV-Rocky9-Docker
 
 ## Build
 
 ```
-/usr/bin/time -f 'Peak Memory: %M\nExit Code: %x' apptainer build --notest --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def
+/usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer build --notest --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def 2>&1 | tee .log
 ```
 
 ## Non Free Codecs
@@ -93,7 +99,7 @@ rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="hevc"
 ## Run
 
 ```
-apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/rv/bin/rv
+apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/OpenRV/bin/rv
 ```
 
 ### Issues
@@ -124,7 +130,7 @@ sudo make install
 
 export LD_LIBRARY_PATH=/usr/local/glibc-2.38/lib:$LD_LIBRARY_PATH
 
-/usr/local/glibc-2.38/lib/ld-2.31.so --version
+/usr/local/glibc-2.38/lib/ld-linux-x86-64.so.2 --version
 
-LD_PRELOAD=/usr/local/glibc-2.38/lib/ld-2.31.so ./your_application
+LD_PRELOAD=/usr/local/glibc-2.38/lib/ld-linux-x86-64.so.2 ./your_application
 ```

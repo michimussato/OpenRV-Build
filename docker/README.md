@@ -18,7 +18,7 @@ A Dockerfile to build OpenRV with a Rocky 9 base, based on [OpenRV](https://gith
 Build the image from the OpenRV-Rocky9-Docker directory. Replace your_qt_username and your_qt_password with your actual Qt login credentials. If you don't have an account, you can get a free account [here](https://login.qt.io/register).
 
 ```shell
-source ../.env
+source ../.env  # if there is one, otherwise fill in the args manually
 time docker build \
     --file ./Dockerfile \
     --progress plain \

@@ -2,10 +2,10 @@
 # - https://github.com/rubikstriangle/OpenRV-Rocky9-Docker
 
 # https://hub.docker.com/r/amd64/rockylinux
-FROM amd64/rockylinux:9
+# FROM amd64/rockylinux:9
 # docker run -it amd64/rockylinux:9 /bin/bash
 # https://hub.docker.com/r/rockylinux/rockylinux
-# FROM rockylinux/rockylinux:9
+FROM rockylinux/rockylinux:9
 # docker run -it rockylinux/rockylinux:9 /bin/bash
 
 SHELL ["/bin/bash", "-c"]
@@ -13,27 +13,29 @@ SHELL ["/bin/bash", "-c"]
 # Set the build arguments for Qt login credentials
 ARG QT_EMAIL
 ARG QT_PASSWORD
-
-# ENV HOME=/root
-ENV QT_ROOT=/opt/Qt
-ENV QT_HOME_VERSION="5.15.2"
+ARG CMAKE_VERSION="3.30.3"
+ARG RV_INST="/opt/OpenRV"
+ARG QT_INSTALLER_VERSION="3.30.3"
+ARG QT_ROOT="/opt/Qt"
+ARG QT_HOME_VERSION="5.15.2"
+ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc"
+ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac"
 
 USER root
 
-WORKDIR $HOME
-
-ENV QT_HOME=$QT_ROOT/$QT_HOME_VERSION/gcc_64
+WORKDIR /build
 
 # Update PATH to include /root/.local/bin
 # ENV PATH=$HOME/.local/bin:$PATH
 
 # Install base packages and additional development tools
-RUN dnf install -y git diffutils epel-release
+RUN dnf install -y git which epel-release
+RUN dnf install -y epel-release
 RUN dnf config-manager --set-enabled crb devel
 RUN dnf install -y \
-    expect \
     alsa-lib-devel \
-    autoconf automake \
+    autoconf \
+    automake \
     avahi-compat-libdns_sd-devel \
     bison \
     bzip2-devel \
@@ -42,7 +44,6 @@ RUN dnf install -y \
     flex \
     gcc \
     gcc-c++ \
-    iproute \
     libXcomposite \
     libXi-devel \
     libaio-devel \
@@ -57,10 +58,12 @@ RUN dnf install -y \
     libXrandr \
     libXtst \
     libXcursor \
+    mesa-libOSMesa \
+    mesa-libOSMesa-devel \
     meson \
     ninja-build \
-    openssl \
     openssl-devel \
+    patch \
     perl-FindBin \
     pulseaudio-libs \
     pulseaudio-libs-glib2 \
@@ -70,49 +73,33 @@ RUN dnf install -y \
     python3 \
     python3-devel \
     qt5-qtbase-devel \
-    qt5-qttools-devel \
     readline-devel \
     sqlite-devel \
+    systemd-devel \
     tcl-devel \
     tcsh \
     tk-devel \
     yasm \
     zip \
-    zlib-devel \
-    mesa-libGLU \
-    mesa-libGLU-devel \
-    mesa-libOSMesa \
-    mesa-libOSMesa-devel \
-    glew-devel \
-    libXi-devel \
-    libXmu-devel \
-    mesa-libGL-devel \
-    freeglut-devel \
-    xorg-x11-server-devel \
-    opencv \
-    opencv-devel \
-    patch \
-    openssh-server \
-    gdbm-devel \
-    libuuid-devel \
-    libnsl2-devel
+    zlib-devel
 RUN dnf config-manager --set-disabled devel
-RUN dnf clean all
-
-RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN python -m pip install --user --upgrade pip setuptools setuptools_scm wheel
+RUN dnf install -y \
+    mesa-libGLU \
+    mesa-libGLU-devel
+# RUN dnf clean all
 
 WORKDIR /build/cmake
 
-ENV CMAKE_VERSION="3.27.9"
+
 
 RUN curl --location \
     --remote-name \
     https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION.tar.gz
 RUN tar -zxvf cmake-$CMAKE_VERSION.tar.gz
 WORKDIR /build/cmake/cmake-$CMAKE_VERSION
-# RUN ls -al
+
 RUN ./bootstrap && make -j$(nproc) && make install
+
 
 WORKDIR /build/Qt
 
@@ -120,13 +107,13 @@ WORKDIR /build/Qt
 # RUN wget https://download.qt.io/archive/online_installers/4.2/qt-unified-linux-x64-4.2.0-online.run
 RUN curl --location \
     --remote-name \
-    https://download.qt.io/archive/online_installers/4.2/qt-unified-linux-x64-4.2.0-online.run
-RUN chmod +x qt-unified-linux-x64-4.2.0-online.run
-RUN ./qt-unified-linux-x64-4.2.0-online.run \
+    https://download.qt.io/archive/online_installers/$(echo $QT_INSTALLER_VERSION | cut -d "." -f 1,2)/qt-unified-linux-x64-$QT_INSTALLER_VERSION-online.run
+RUN chmod a+x qt-unified-linux-x64-$QT_INSTALLER_VERSION-online.run
+RUN ./qt-unified-linux-x64-$QT_INSTALLER_VERSION-online.run \
         --verbose \
-        --email $QT_EMAIL \
-        --password $QT_PASSWORD \
-        --root $QT_ROOT \
+        --email "$QT_EMAIL" \
+        --password "$QT_PASSWORD" \
+        --root "$QT_ROOT" \
         --platform minimal \
         --confirm-command \
         --accept-licenses \
@@ -151,25 +138,41 @@ RUN ./qt-unified-linux-x64-4.2.0-online.run \
         qt.qt5.5152.src \
         qt.qt5.5152.gcc_64 \
         qt.qt5.5152.qtquick3d
-RUN $QT_ROOT/5.15.2/gcc_64/bin/qmake --version || { echo "Qt installation failed"; exit 1; }
-# RUN rm /tmp/qt-installer.run
+
 
 # Install OpenRV
-ENV OPENRV_BUILD_DIR=/build/OpenRV
-RUN git clone --recursive https://github.com/AcademySoftwareFoundation/OpenRV.git $OPENRV_BUILD_DIR
+ENV OPENRV_BUILD_DIR="/build/OpenRV"
 WORKDIR $OPENRV_BUILD_DIR
-RUN pip install --upgrade pip
-RUN python3 -m pip install --user --upgrade -r $OPENRV_BUILD_DIR/requirements.txt
-RUN cmake \
-    -B $OPENRV_BUILD_DIR/_build \
-    -G Ninja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DRV_DEPS_QT5_LOCATION=$QT_ROOT/5.15.2/gcc_64
-RUN cmake \
-    --build $OPENRV_BUILD_DIR/_build \
-    --config Release \
-    -v \
-    --target main_executable
+RUN git clone \
+    --recursive https://github.com/AcademySoftwareFoundation/OpenRV.git \
+    .
+RUN python3 -m pip install --requirement requirements.txt
+
+ENV QT_HOME="$QT_ROOT/$QT_HOME_VERSION/gcc_64"
+
+RUN . ./rvcmds.sh && rvsetup
+RUN . ./rvcmds.sh && rvcfg \
+    -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="$FFMPEG_NON_FREE_DECODERS_TO_ENABLE" \
+    -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="$FFMPEG_NON_FREE_ENCODERS_TO_ENABLE"
+
+# rvbuildt
+# alias rvbuildt="rvenv && cmake --build ${RV_BUILD} --config Release -v --parallel=${RV_BUILD_PARALLELISM} --target "
+RUN . ./rvcmds.sh && rvbuildt dependencies
+# RUN cmake \
+#     -B $OPENRV_BUILD_DIR/_build \
+#     -G Ninja \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -DRV_DEPS_QT5_LOCATION=$QT_ROOT/5.15.2/gcc_64
+
+RUN . ./rvcmds.sh && rvbuildt main_executable
+# RUN cmake \
+#     --build $OPENRV_BUILD_DIR/_build \
+#     --config Release \
+#     -v \
+#     --target main_executable
+
+# Installation is not necessary, just create tarball
+# RUN . ./rvcmds.sh && rvinst
 
 
 # Determine build platform, version, and architecture for creation of rv tarball name
@@ -184,7 +187,7 @@ RUN echo "Determining build platform..." && \
     else \
         BUILD_PLATFORM=$(uname -s); \
     fi && \
-    VERSION=$(/OpenRV/_build/stage/app/bin/rv -version) && \
+    VERSION=$($OPENRV_BUILD_DIR/_build/stage/app/bin/rv -version) && \
     ARCHITECTURE=$(uname -m) && \
     echo "BUILD_PLATFORM=$BUILD_PLATFORM" > /etc/environment && \
     echo "VERSION=$VERSION" >> /etc/environment && \
@@ -195,9 +198,17 @@ RUN echo "Determining build platform..." && \
 
 # Source the environment variables file
 RUN . /etc/environment && echo "Build Name: $BUILD_NAME"
-RUN . /etc/environment && cmake --install $OPENRV_BUILD_DIR/_build --prefix /opt/OpenRV/${BUILD_NAME} --config Release
-RUN . /etc/environment && cp /lib64/libcrypt.so.2 /opt/OpenRV/${BUILD_NAME}/lib
-RUN . /etc/environment && tar -czvf ${BUILD_NAME}.tar.gz -C /opt/OpenRV ${BUILD_NAME}
+# rvinst
+# alias rvinst="rvenv && cmake --install ${RV_BUILD} --prefix ${RV_INST} --config Release"
+# RUN . /etc/environment && cmake --install $OPENRV_BUILD_DIR/_build --prefix /opt/OpenRV/${BUILD_NAME} --config Release
+# RUN . $OPENRV_BUILD_DIR/rvcmds.sh && . /etc/environment && rvinst
+RUN . $OPENRV_BUILD_DIR/rvcmds.sh && . /etc/environment && rvenv && cmake --install $OPENRV_BUILD_DIR/_build --prefix $RV_INST/${BUILD_NAME} --config Release
+RUN . /etc/environment && cp /lib64/libcrypt.so.2 $RV_INST/${BUILD_NAME}/lib
+RUN . /etc/environment && tar -czvf ${BUILD_NAME}.tar.gz -C $RV_INST ${BUILD_NAME}
 RUN . /etc/environment && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-    echo -e "\e[1;36msudo docker run -d --name openrv_container openrv_rocky9\e[0m" && \
-    echo -e "\e[1;36msudo docker cp openrv_container:/opt/OpenRV/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
+    echo -e "\e[1;36msudo docker cp <your_container_name>:$RV_INST/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+
+
+RUN rm -rf /build
+RUN dnf autoremove -y && dnf clean all

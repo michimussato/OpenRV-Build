@@ -102,7 +102,7 @@ From: rockylinux:9
 
     time curl --location \
         --remote-name \
-        https://d13lb3tujbc8s0.cloudfront.net/onlineinstallers/qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
+        https://download.qt.io/archive/online_installers/$(echo {{ QT_INSTALLER_VERSION }} | cut -d "." -f 1,2)/qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
     chmod a+x qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
     # Not required:
     # - Logs
@@ -180,8 +180,13 @@ From: rockylinux:9
     # 15G     /build
     rm -rf /build
 
-    dnf clean packages
-    dnf autoremove
+    # Todo
+    #  - [ ] Remove /opt/Qt?
+    #  - [ ] Remove cmake?
+    #  - [ ] rockylinux:9.6-minimal?
+
+    dnf autoremove -y
+    dnf clean all
 
 %labels
     Author "Jean First"
@@ -190,7 +195,7 @@ From: rockylinux:9
 
 %help
     # Build
-    # create .env file and define QT_EMAIL and QT_PASSWORD - the credentials from your Qt Account
-    time apptainer build --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def
+    # - create .env file and define QT_EMAIL and QT_PASSWORD - the credentials of your Qt Account
+    /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x'  apptainer build --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def
     # Run
     apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/rv/bin/rv
