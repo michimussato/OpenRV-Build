@@ -113,9 +113,9 @@ From: rockylinux:9
     # - WebAssembly
     time ./qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run \
         --verbose \
-        --email \"{{ QT_EMAIL }}\" \
-        --password \"{{ QT_PASSWORD }}\" \
-        --root \"{{ QT_ROOT }}\" \
+        --email "{{ QT_EMAIL }}" \
+        --password "{{ QT_PASSWORD }}" \
+        --root "{{ QT_ROOT }}" \
         --platform minimal \
         --confirm-command \
         --accept-licenses \
@@ -161,6 +161,8 @@ From: rockylinux:9
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
+    export RV_INST="{{ RV_INST }}"
+
     source ./rvcmds.sh
     time rvsetup
     rvcfg \
@@ -176,7 +178,9 @@ From: rockylinux:9
     # CLEANUP
 
     # build
-    # rm -rf /build
+    # $ apptainer exec --nv --bind /run/user/$UID OpenRV.sif du -hs /build
+    # 15G     /build
+    rm -rf /build
 
 %labels
     Author "Jean First"
