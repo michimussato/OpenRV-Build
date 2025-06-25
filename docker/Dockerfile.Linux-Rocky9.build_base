@@ -1,7 +1,14 @@
-FROM rockylinux/rockylinux:9 AS openrv_rocky9_build_base
-# docker build --file ./Dockerfile.OpenRV --progress plain --tag openstudiolandscapes/openrv_rocky9:latest .
+FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
+# Build:
+# docker build --file ./Dockerfile.Linux-Rocky9.build_base --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
+#
+# Run (attached):
+# docker run --name openrv_linux_rocky9_build_base openstudiolandscapes/openrv_linux_rocky9_build_base:latest /bin/bash -c "sleep infinity"
+#
+# Exec:
+# docker container exec --interactive --tty openrv_linux_rocky9_build_base /bin/bash
 
-LABEL maintainer="Open RV maintainer - https://github.com/AcademySoftwareFoundation/OpenRV"
+LABEL maintainer="Michael Mussato"
 
 USER root
 
