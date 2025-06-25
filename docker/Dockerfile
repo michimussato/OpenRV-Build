@@ -11,34 +11,15 @@ FROM rockylinux/rockylinux:9
 SHELL ["/bin/bash", "-c"]
 
 # Set the build arguments for Qt login credentials
+# https://bobcares.com/blog/dockerfile-arg-default-value-not-working/
 ARG QT_EMAIL
 ARG QT_PASSWORD
-
-# https://bobcares.com/blog/dockerfile-arg-default-value-not-working/
 ARG CMAKE_VERSION
-# ARG CMAKE_VERSION="3.30.3"
-# ARG CMAKE_VERSION=${CMAKE_VERSION}
-
 ARG RV_INST
-# ARG RV_INST="/opt/OpenRV"
-# ARG RV_INST=${RV_INST}
-
 ARG QT_INSTALLER_VERSION
-# ARG QT_INSTALLER_VERSION="4.6.1"
-# ARG QT_INSTALLER_VERSION=${QT_INSTALLER_VERSION}
-
 ARG QT_ROOT
-# ARG QT_ROOT="/opt/Qt"
-# ARG QT_ROOT=${QT_ROOT}
-
 ARG QT_HOME_VERSION
-# ARG QT_HOME_VERSION="5.15.2"
-# ARG QT_HOME_VERSION=${QT_HOME_VERSION}
-
 ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE
-# ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc"
-# ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}
-
 ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE
 
 
@@ -119,7 +100,7 @@ RUN curl --location \
     https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}.tar.gz
 RUN tar -zxvf cmake-${CMAKE_VERSION}.tar.gz
 
-WORKDIR $CMAKE_BUILD_DIR/cmake-${CMAKE_VERSION}
+WORKDIR ${CMAKE_BUILD_DIR}/cmake-${CMAKE_VERSION}
 
 RUN ./bootstrap && make -j$(nproc) && make install
 
@@ -131,14 +112,14 @@ WORKDIR $QT_BUILD_DIR
 # RUN wget https://download.qt.io/archive/online_installers/4.2/qt-unified-linux-x64-4.2.0-online.run
 RUN curl --location \
     --remote-name \
-    https://download.qt.io/archive/online_installers/4.6/qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run
-#     https://download.qt.io/archive/online_installers/$(echo ${QT_INSTALLER_VERSION} | cut -d "." -f 1,2)/qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run
+#     https://download.qt.io/archive/online_installers/4.6/qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run
+    https://download.qt.io/archive/online_installers/$(echo ${QT_INSTALLER_VERSION} | cut -d "." -f 1,2)/qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run
 RUN chmod a+x qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run
 RUN ./qt-unified-linux-x64-${QT_INSTALLER_VERSION}-online.run \
         --verbose \
-        --email $QT_EMAIL \
-        --password $QT_PASSWORD \
-        --root $QT_ROOT \
+        --email ${QT_EMAIL} \
+        --password ${QT_PASSWORD} \
+        --root ${QT_ROOT} \
         --platform minimal \
         --confirm-command \
         --accept-licenses \
@@ -178,27 +159,30 @@ RUN python3 -m pip install --requirement requirements.txt
 # RUN ls -al python*
 # RUN ls -sfn python3 python
 
-ENV QT_HOME="$QT_ROOT/$QT_HOME_VERSION/gcc_64"
+ENV QT_HOME="${QT_ROOT}/${QT_HOME_VERSION}/gcc_64"
 
 RUN python3 -m venv .venv
 
 # instead of 'ls -al /usr/bin/python /usr/bin/python3'
 # and constant 'source .venv/bin/activate'
-ENV PATH="$OPENRV_BUILD_DIR/.venv/bin:$PATH"
+ENV PATH="${OPENRV_BUILD_DIR}/.venv/bin:${PATH}"
 
 # rvsetup
-RUN python3 -m pip install --upgrade -r $OPENRV_BUILD_DIR/requirements.txt
+RUN python3 -m pip install --upgrade -r "${OPENRV_BUILD_DIR}/requirements.txt"
+
+RUN which python
+RUN python --version
 
 # rvcfg
 ENV RV_VFX_PLATFORM="CY2023"
 RUN cmake \
     -B ${OPENRV_BUILD_DIR}/_build \
-    -G \"Ninja\" \
+    -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
-    -DRV_DEPS_QT5_LOCATION=$QT_HOME \
-    -DRV_VFX_PLATFORM=$RV_VFX_PLATFORM \
-    -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="$FFMPEG_NON_FREE_DECODERS_TO_ENABLE" \
-    -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="$FFMPEG_NON_FREE_ENCODERS_TO_ENABLE"
+    -DRV_DEPS_QT5_LOCATION=${QT_HOME} \
+    -DRV_VFX_PLATFORM=${RV_VFX_PLATFORM} \
+    -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" \
+    -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}"
 
 # rvbuildt
 # alias rvbuildt="rvenv && cmake --build ${RV_BUILD} --config Release -v --parallel=${RV_BUILD_PARALLELISM} --target "
@@ -237,7 +221,7 @@ RUN cmake \
 RUN echo "Determining build platform..." && \
     if [ -f /etc/os-release ]; then \
         . /etc/os-release; \
-        if [ "$NAME" = "Rocky Linux" ]; then \
+        if [ "${NAME}" = "Rocky Linux" ]; then \
             BUILD_PLATFORM="Rocky${VERSION_ID%.*}"; \
         else \
             BUILD_PLATFORM=$(echo ${NAME}${VERSION_ID} | tr ' ' '_'); \
@@ -245,17 +229,17 @@ RUN echo "Determining build platform..." && \
     else \
         BUILD_PLATFORM=$(uname -s); \
     fi && \
-    VERSION=$($OPENRV_BUILD_DIR/_build/stage/app/bin/rv -version) && \
+    VERSION=$(${OPENRV_BUILD_DIR}/_build/stage/app/bin/rv -version) && \
     ARCHITECTURE=$(uname -m) && \
-    echo "BUILD_PLATFORM=$BUILD_PLATFORM" > /etc/environment && \
-    echo "VERSION=$VERSION" >> /etc/environment && \
-    echo "ARCHITECTURE=$ARCHITECTURE" >> /etc/environment && \
+    echo "BUILD_PLATFORM=${BUILD_PLATFORM}" > /etc/environment && \
+    echo "VERSION=${VERSION}" >> /etc/environment && \
+    echo "ARCHITECTURE=${ARCHITECTURE}" >> /etc/environment && \
     BUILD_NAME=OpenRV-${BUILD_PLATFORM}-${ARCHITECTURE}-${VERSION} && \
-    echo "BUILD_NAME=$BUILD_NAME" >> /etc/environment && \
-    echo "$BUILD_NAME" >> $OPENRV_BUILD_DIR/build_name.txt
+    echo "BUILD_NAME=${BUILD_NAME}" >> /etc/environment && \
+    echo "${BUILD_NAME}" >> ${OPENRV_BUILD_DIR}/build_name.txt
 
 # Source the environment variables file
-RUN . /etc/environment && echo "Build Name: $BUILD_NAME"
+RUN . /etc/environment && echo "Build Name: ${BUILD_NAME}"
 # rvinst
 # alias rvinst="rvenv && cmake --install ${RV_BUILD} --prefix ${RV_INST} --config Release"
 # RUN . /etc/environment && cmake --install $OPENRV_BUILD_DIR/_build --prefix /opt/OpenRV/${BUILD_NAME} --config Release
@@ -267,10 +251,10 @@ RUN . /etc/environment \
     --config Release
 # RUN . $OPENRV_BUILD_DIR/rvcmds.sh && . /etc/environment && rvenv && cmake --install $OPENRV_BUILD_DIR/_build --prefix $RV_INST/${BUILD_NAME} --config Release
 RUN . /etc/environment && cp /lib64/libcrypt.so.2 $RV_INST/${BUILD_NAME}/lib
-RUN . /etc/environment && tar -czvf ${BUILD_NAME}.tar.gz -C $RV_INST ${BUILD_NAME}
+RUN . /etc/environment && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} ${BUILD_NAME}
 RUN . /etc/environment && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
     echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-    echo -e "\e[1;36msudo docker cp <your_container_name>:$RV_INST/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+    echo -e "\e[1;36msudo docker cp <your_container_name>:${RV_INST}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
 
 
 RUN rm -rf /build
