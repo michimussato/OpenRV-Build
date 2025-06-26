@@ -3,10 +3,13 @@ FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # docker build --file ./Dockerfile.Linux-Rocky9.build_base --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
 #
 # Run (attached):
-# docker run --name openrv_linux_rocky9_build_base openstudiolandscapes/openrv_linux_rocky9_build_base:latest /bin/bash -c "sleep infinity"
+# Ref: https://stackoverflow.com/a/55734437/2207196
+# docker run --hostname openrv_linux_rocky9_build_base --rm --name openrv_linux_rocky9_build_base openstudiolandscapes/openrv_linux_rocky9_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 #
 # Exec:
 # docker container exec --interactive --tty openrv_linux_rocky9_build_base /bin/bash
+
+# Tested and verified: [x] (2025-06-26)
 
 LABEL maintainer="Michael Mussato"
 
