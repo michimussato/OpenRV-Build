@@ -8,6 +8,10 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 #
 # Exec:
 # docker container exec --interactive --tty openrv_linux_rocky9_build_stage /bin/bash
+#
+# Copy tar to host:
+# docker cp openrv_linux_rocky9_build_stage:/home/rv/OpenRV/OpenRV-Rocky9-x86_64-3.0.0.tar.gz ~/Downloads
+
 
 # Process tested with user rv: [x]
 # STATUS: WORKING
@@ -92,15 +96,14 @@ RUN echo "Determining build platform..." && \
 # Create Tar
 # Source the environment variables file
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
-# rvinst
-# alias rvinst="rvenv && cmake --install ${RV_BUILD} --prefix ${RV_INST} --config Release"
-# RUN . ${ENVIRONMENT} && . rvcmds.sh && rvinst
-RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 {$RV_INST}/lib
-# RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} ${BUILD_NAME}
+RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
 RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
     echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-    echo -e "\e[1;36msudo docker cp <your_container_name>:${RV_INST}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+
+
+RUN echo ${OPENRV_REPO_DIR} && cat ${OPENRV_REPO_DIR}/build_name.txt
 
 
 CMD ["/bin/bash"]
