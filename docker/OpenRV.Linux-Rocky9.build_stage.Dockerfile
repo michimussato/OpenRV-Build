@@ -26,6 +26,8 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 
 # SHELL ["/bin/bash", "-c"]
 
+RUN ls -al
+
 USER rv
 ENV HOME="/home/rv"
 
@@ -98,7 +100,6 @@ RUN echo "Determining build platform..." && \
     echo "BUILD_NAME=${BUILD_NAME}" >> ${ENVIRONMENT} && \
     echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt
 
-RUN ls -al
 
 # Create Tar
 # Source the environment variables file
