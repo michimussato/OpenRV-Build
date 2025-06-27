@@ -84,20 +84,20 @@ USER rv
 ENV HOME="/home/rv"
 WORKDIR ${HOME}
 
-ENV PATH=${HOME}/.local/bin:/usr/local/bin:${PATH}
-ENV QT_QPA_PLATFORM=offscreen
+ENV PATH="${HOME}/.local/bin:/usr/local/bin:${PATH}"
+ENV QT_QPA_PLATFORM="offscreen"
 
 # Download ninja from GitHub to get a more recent version.
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip
 RUN unzip ninja-linux.zip -d ./ninja
 RUN echo 'export PATH=${HOME}/ninja:${PATH}' >> ${HOME}/.bash_profile
-ENV PATH ${HOME}/ninja:${PATH}
+ENV PATH="${HOME}/ninja:${PATH}"
 
 # Using pyenv to make sure that python and python3 command points to the same version.
 # Install pyenv
 RUN git clone http://github.com/pyenv/pyenv.git ${HOME}/.pyenv
-ENV PYENV_ROOT=${HOME}/.pyenv
-ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
+ENV PYENV_ROOT="${HOME}/.pyenv"
+ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 RUN echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
 RUN echo 'export PATH="$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 RUN echo 'eval "$(pyenv init -)"' >> ~/.bashrc
