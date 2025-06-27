@@ -10,6 +10,7 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 # docker container exec --interactive --tty openrv_linux_rocky9_build_stage /bin/bash
 
 # Process tested with user rv: [x]
+# STATUS: WORKING
 
 # LABEL maintainer="Michael Mussato"
 
@@ -17,6 +18,9 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 
 USER rv
 ENV HOME="/home/rv"
+
+ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=""
+ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
@@ -56,6 +60,10 @@ RUN . ${ACTIVATE} && cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD
 RUN . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies
 RUN . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable
 
+# RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
+# -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
+RUN . ${ACTIVATE} && cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release
+
 ENV ENVIRONMENT="${OPENRV_REPO_DIR}/environment"
 
 # Determine build platform, version, and architecture for creation of rv tarball name
@@ -81,50 +89,18 @@ RUN echo "Determining build platform..." && \
     echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt
 
 
-
-
-RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
-# ->
-
-
-
-# # Source the environment variables file
-# RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
-# # rvinst
-# # alias rvinst="rvenv && cmake --install ${RV_BUILD} --prefix ${RV_INST} --config Release"
-# RUN . ${ENVIRONMENT} && . rvcmds.sh && rvinst
-# RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 $RV_INST/lib
-# # RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} ${BUILD_NAME}
-# RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-# RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-#     echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-#     echo -e "\e[1;36msudo docker cp <your_container_name>:${RV_INST}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
-
-
-
-# RUN <<-"EOT"
-# #!/usr/bin/env bash
-#
-# cd ${OPENRV_REPO_DIR}
-#
-# source ${ENVIRONMENT}
-#
-# echo "Build Name: ${BUILD_NAME}"
-#
-# echo "Sourcing rvcmds.sh..."
-# source ${OPENRV_REPO_DIR}/rvcmds.sh
-#
+# Create Tar
+# Source the environment variables file
+RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 # rvinst
-#
-# cp /lib64/libcrypt.so.2 ${RV_INST}/lib
-#
-# tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-#
-# echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m"
-# echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m"
-# echo -e "\e[1;36msudo docker cp <your_container_name>:${RV_INST}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
-#
-# EOT
+# alias rvinst="rvenv && cmake --install ${RV_BUILD} --prefix ${RV_INST} --config Release"
+# RUN . ${ENVIRONMENT} && . rvcmds.sh && rvinst
+RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 {$RV_INST}/lib
+# RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} ${BUILD_NAME}
+RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
+RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
+    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
+    echo -e "\e[1;36msudo docker cp <your_container_name>:${RV_INST}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
 
 
 CMD ["/bin/bash"]
