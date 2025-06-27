@@ -98,6 +98,7 @@ RUN echo "Determining build platform..." && \
     echo "BUILD_NAME=${BUILD_NAME}" >> ${ENVIRONMENT} && \
     echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt
 
+RUN ls -al
 
 # Create Tar
 # Source the environment variables file
