@@ -1,0 +1,13 @@
+BootStrap: docker
+From: openstudiolandscapes/openrv_linux_rocky9_build_stage:latest
+
+%labels
+    Author "Jean First"
+    Contributors "Jean First, Michael Mussato"
+    Version "v0.0.2"
+
+%help
+    # Build
+    apptainer build OpenRV.Linux-Rocky9.build_stage.apptainer.sif OpenRV.Linux-Rocky9.build_stage.apptainer.def
+    # Run
+    apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.Linux-Rocky9.build_stage.apptainer.sif /home/rv/OpenRV/_install/bin/rv
