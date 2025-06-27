@@ -9,9 +9,15 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 # Exec:
 # docker container exec --interactive --tty openrv_linux_rocky9_build_stage /bin/bash
 #
-# Copy tar to host:
+# Copy OpenRV tar to host:
 # docker cp openrv_linux_rocky9_build_stage:/home/rv/OpenRV/OpenRV-Rocky9-x86_64-3.0.0.tar.gz ~/Downloads
-
+#
+# Export Docker image to tar:
+# docker save --output openrv_linux_rocky9_build_stage.tar 8a47415c84c5
+# Convert tar to Apptainer
+# apptainer build openrv_linux_rocky9_build_stage.sif openrv_linux_rocky9_build_stage.tar
+# Run OpenRV from Apptainer
+# apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER openrv_linux_rocky9_build_stage.sif /home/rv/OpenRV/_install/bin/rv
 
 # Process tested with user rv: [x]
 # STATUS: WORKING
@@ -104,6 +110,20 @@ RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your 
 
 
 RUN echo ${OPENRV_REPO_DIR} && cat ${OPENRV_REPO_DIR}/build_name.txt
+
+
+# Todo
+# - [ ] Cleanup ${HOME}/OpenRV/_build
+# - [ ] Cleanup ${HOME}/OpenRV/_install
+# - [ ] Cleanup ${HOME}/Qt
+# $ du -hs ${HOME}/OpenRV/_build
+# 14G     /home/rv/OpenRV/_build
+# $ du -hs ${HOME}/OpenRV/_install
+# 1.4G    /home/rv/OpenRV/_install
+# $ du -hs ${HOME}/Qt
+# 4.4G    /home/rv/Qt
+RUN rm -rf ${OPENRV_REPO_DIR}/_build
+RUN rm -rf ${HOME}/Qt
 
 
 CMD ["/bin/bash"]
