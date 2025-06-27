@@ -34,7 +34,8 @@ RUN git clone \
 RUN echo "Starting build steps..."
 RUN . ${OPENRV_REPO_DIR}/rvcmds.sh
 # Setup .venv
-# rvenv_shell is a function, not an alias, hence, this works here
+# rvenv_shell is a function, not an alias, hence, this works here.
+# Bash aliases, however, work in an interactive session but not during a build process.
 RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && rvenv_shell
 
 ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
