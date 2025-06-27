@@ -1,6 +1,6 @@
 FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # Build:
-# docker build --file ./OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
