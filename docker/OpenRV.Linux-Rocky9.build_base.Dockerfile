@@ -1,6 +1,6 @@
 FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # Build:
-# docker build --file ./Dockerfile.Linux-Rocky9.build_base --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
+# docker build --file ./OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -11,7 +11,7 @@ FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 
 # Tested and verified: [x] (2025-06-26)
 
-LABEL maintainer="Michael Mussato"
+# LABEL maintainer="Michael Mussato"
 
 USER root
 
@@ -78,27 +78,27 @@ RUN dnf upgrade -y \
     # Clearing dnf caches
     && dnf clean all && rm -rf /var/cache/yum
 
-
-ENV PATH=/home/rv/.local/bin:/usr/local/bin:$PATH \
-    QT_QPA_PLATFORM=offscreen
-
 # create and run as user rv
 RUN useradd -u 1001 -ms /bin/bash rv
-WORKDIR /home/rv
 USER rv
+ENV HOME="/home/rv"
+WORKDIR ${HOME}
+
+ENV PATH=${HOME}/.local/bin:/usr/local/bin:${PATH}
+ENV QT_QPA_PLATFORM=offscreen
 
 # Download ninja from GitHub to get a more recent version.
 RUN wget https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-linux.zip
 RUN unzip ninja-linux.zip -d ./ninja
-RUN echo 'export PATH=/home/rv/ninja:$PATH' >> /home/rv/.bash_profile
-ENV PATH /home/rv/ninja:$PATH
+RUN echo 'export PATH=${HOME}/ninja:${PATH}' >> ${HOME}/.bash_profile
+ENV PATH ${HOME}/ninja:${PATH}
 
 # Using pyenv to make sure that python and python3 command points to the same version.
 # Install pyenv
-RUN git clone http://github.com/pyenv/pyenv.git /home/rv/.pyenv
-ENV PYENV_ROOT /home/rv/.pyenv
-ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
-RUN echo 'export PYENV_ROOT="/home/rv/.pyenv"' >> ~/.bashrc
+RUN git clone http://github.com/pyenv/pyenv.git ${HOME}/.pyenv
+ENV PYENV_ROOT=${HOME}/.pyenv
+ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}
+RUN echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
 RUN echo 'export PATH="$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 RUN echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
@@ -113,5 +113,7 @@ RUN python -m pip install aqtinstall
 RUN python -m aqt install-qt linux desktop 5.15.2 gcc_64 -O ~/Qt \
     -m debug_info qtcharts qtdatavis3d qtlottie qtnetworkauth qtpurchasing qtquick3d qtquicktimeline qtscript qtvirtualkeyboard qtwaylandcompositor qtwebengine qtwebglplugin \
     --archives icu qt3d qtbase qtconnectivity qtdeclarative qtgamepad qtgraphicaleffects qtimageformats qtlocation qtmultimedia qtquickcontrols qtquickcontrols2 qtremoteobjects qtscxml qtsensors qtserialbus qtserialport qtspeech qtsvg qttools qttranslations qtwayland qtwebchannel qtwebsockets qtwebview qtx11extras qtxmlpatterns
+
+ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 
 CMD ["/bin/bash"]
