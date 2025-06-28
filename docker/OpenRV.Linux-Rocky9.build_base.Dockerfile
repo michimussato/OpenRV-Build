@@ -16,67 +16,72 @@ FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 USER root
 
 # enable epel crb and devel packages
-RUN dnf upgrade -y \
-    && dnf install -y  epel-release \
-    && dnf config-manager --set-enabled crb devel \
-    && dnf install -y \
-    # RV requirements
-    alsa-lib-devel \
-    autoconf \
-    automake \
-    avahi-compat-libdns_sd-devel \
-    bison \
-    bzip2-devel \
-    cmake-gui \
-    curl-devel \
-    diffutils \
-    flex \
-    git \
-    gcc \
-    gcc-c++ \
-    libXcomposite \
-    libXi-devel \
-    libaio-devel \
-    libffi-devel \
-    nasm ncurses-devel \
-    nss \
-    libtool \
-    libxkbcommon \
-    libXcomposite \
-    libXdamage \
-    libXrandr \
-    libXtst \
-    libXcursor \
-    mesa-libGLU \
-    mesa-libGLU-devel \
-    mesa-libOSMesa \
-    mesa-libOSMesa-devel \
-    meson \
-    ninja-build \
-    openssl-devel \
-    patch \
-    perl-FindBin \
-    pulseaudio-libs \
-    pulseaudio-libs-glib2 \
-    ocl-icd ocl-icd-devel \
-    opencl-headers \
-    qt5-qtbase-devel \
-    readline-devel \
-    sqlite-devel \
-    sudo \
-    tcl-devel \
-    tcsh \
-    tk-devel \
-    wget \
-    yasm \
-    zip \
-    zlib-devel \
-    systemd-devel \
+RUN \
+    dnf upgrade -y && \
+    dnf install -y epel-release && \
+    dnf config-manager --set-enabled crb devel && \
+    dnf install -y \
+        # RV requirements
+        alsa-lib-devel \
+        autoconf \
+        automake \
+        avahi-compat-libdns_sd-devel \
+        bison \
+        bzip2-devel \
+        cmake-gui \
+        curl-devel \
+        diffutils \
+        flex \
+        git \
+        gcc \
+        gcc-c++ \
+        libXcomposite \
+        libXi-devel \
+        libaio-devel \
+        libffi-devel \
+        nasm ncurses-devel \
+        nss \
+        libtool \
+        libxkbcommon \
+        libXcomposite \
+        libXdamage \
+        libXrandr \
+        libXtst \
+        libXcursor \
+        mesa-libGLU \
+        mesa-libGLU-devel \
+        mesa-libOSMesa \
+        mesa-libOSMesa-devel \
+        meson \
+        ninja-build \
+        openssl-devel \
+        patch \
+        perl-FindBin \
+        pulseaudio-libs \
+        pulseaudio-libs-glib2 \
+        ocl-icd ocl-icd-devel \
+        opencl-headers \
+        qt5-qtbase-devel \
+        readline-devel \
+        sqlite-devel \
+        sudo \
+        tcl-devel \
+        tcsh \
+        tk-devel \
+        wget \
+        yasm \
+        zip \
+        zlib-devel \
+        systemd-devel && \
     # The cmake in dnf is not recent enough, install from the CMake site
-    && curl -L https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh -o cmake.sh \
-    && sh cmake.sh --prefix=/usr/local/ --skip-license && rm -rf cmake.sh \
+    curl  \
+        -L https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
+        -o cmake.sh && \
+    sh cmake.sh --prefix=/usr/local/ --skip-license && \
+    rm -rf cmake.sh && \
     # Clearing dnf caches
-    && dnf clean all && rm -rf /var/cache/yum
+    dnf clean all && \
+    rm -rf /var/cache/yum
 
 # create and run as user rv
 RUN useradd -u 1001 -ms /bin/bash rv
@@ -110,7 +115,8 @@ RUN pyenv global 3.10.13
 
 RUN python -m pip install aqtinstall
 
-RUN python -m aqt install-qt linux desktop 5.15.2 gcc_64 -O ~/Qt \
+RUN \
+    python -m aqt install-qt linux desktop 5.15.2 gcc_64 -O ~/Qt \
     -m debug_info qtcharts qtdatavis3d qtlottie qtnetworkauth qtpurchasing qtquick3d qtquicktimeline qtscript qtvirtualkeyboard qtwaylandcompositor qtwebengine qtwebglplugin \
     --archives icu qt3d qtbase qtconnectivity qtdeclarative qtgamepad qtgraphicaleffects qtimageformats qtlocation qtmultimedia qtquickcontrols qtquickcontrols2 qtremoteobjects qtscxml qtsensors qtserialbus qtserialport qtspeech qtsvg qttools qttranslations qtwayland qtwebchannel qtwebsockets qtwebview qtx11extras qtxmlpatterns
 

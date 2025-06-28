@@ -42,7 +42,8 @@ ENV RV_INST="${OPENRV_REPO_DIR}/_install"
 
 WORKDIR ${OPENRV_REPO_DIR}
 
-RUN git clone \
+RUN \
+    git clone \
     --recursive \
     https://github.com/AcademySoftwareFoundation/OpenRV.git \
     .
@@ -50,7 +51,7 @@ RUN git clone \
 # RUN echo 'source ${OPENRV_REPO_DIR}/rvcmds.sh' >> ~/.bashrc
 
 RUN echo "Starting build steps..."
-RUN . ${OPENRV_REPO_DIR}/rvcmds.sh
+# RUN . ${OPENRV_REPO_DIR}/rvcmds.sh
 # Setup .venv
 # rvenv_shell is a function, not an alias, hence, this works here.
 # Bash aliases, however, work in an interactive session but not during a build process.
@@ -63,38 +64,41 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 
 # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvsetup]}
 # -> rvenv && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r /home/rv/OpenRV/requirements.txt
-RUN . ${ACTIVATE} && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
+RUN \
+    . ${ACTIVATE} && \
+    SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
     # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
-    . ${ACTIVATE} && cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
+    cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
-    . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
-    . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
     \
     # RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
     # -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
-    . ${ACTIVATE} && cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release && \
+    cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release && \
     # Todo
     # - [ ] Cleanup ${HOME}/OpenRV/_build
     # - [ ] Cleanup ${HOME}/OpenRV/_install
-    # - [ ] Cleanup ${HOME}/Qt
+    # - [x] Cleanup ${HOME}/Qt
     # $ du -hs ${HOME}/OpenRV/_build
     # 14G     /home/rv/OpenRV/_build
     # $ du -hs ${HOME}/OpenRV/_install
     # 1.4G    /home/rv/OpenRV/_install
     # $ du -hs ${HOME}/Qt
     # 4.4G    /home/rv/Qt
-    rm -rf ${OPENRV_REPO_DIR}/_build && \
+    # rm -rf ${OPENRV_REPO_DIR}/_build && \
     rm -rf ${HOME}/Qt
 
 
 ENV ENVIRONMENT="${OPENRV_REPO_DIR}/environment"
 
 # Determine build platform, version, and architecture for creation of rv tarball name
-RUN echo "Determining build platform..." && \
+RUN \
+    echo "Determining build platform..." && \
     if [ -f /etc/os-release ]; then \
         . /etc/os-release; \
         if [ "${NAME}" = "Rocky Linux" ]; then \
@@ -121,12 +125,16 @@ RUN echo "Determining build platform..." && \
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
+RUN \
+    . ${ENVIRONMENT} && \
+    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
     echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
     echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
 
 
-RUN echo ${OPENRV_REPO_DIR} && cat ${OPENRV_REPO_DIR}/build_name.txt
+RUN \
+    echo ${OPENRV_REPO_DIR} &&  \
+    cat ${OPENRV_REPO_DIR}/build_name.txt
 
 
 CMD ["/bin/bash"]
