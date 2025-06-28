@@ -63,20 +63,33 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 
 # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvsetup]}
 # -> rvenv && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r /home/rv/OpenRV/requirements.txt
-RUN . ${ACTIVATE} && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt
+RUN . ${ACTIVATE} && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
+    \
+    # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
+    # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
+    . ${ACTIVATE} && cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
+    \
+    # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
+    # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
+    . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
+    . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
+    \
+    # RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
+    # -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
+    . ${ACTIVATE} && cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release && \
+    # Todo
+    # - [ ] Cleanup ${HOME}/OpenRV/_build
+    # - [ ] Cleanup ${HOME}/OpenRV/_install
+    # - [ ] Cleanup ${HOME}/Qt
+    # $ du -hs ${HOME}/OpenRV/_build
+    # 14G     /home/rv/OpenRV/_build
+    # $ du -hs ${HOME}/OpenRV/_install
+    # 1.4G    /home/rv/OpenRV/_install
+    # $ du -hs ${HOME}/Qt
+    # 4.4G    /home/rv/Qt
+    rm -rf ${OPENRV_REPO_DIR}/_build && \
+    rm -rf ${HOME}/Qt
 
-# RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
-# -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
-RUN . ${ACTIVATE} && cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}"
-
-# RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
-# -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
-RUN . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies
-RUN . ${ACTIVATE} && cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable
-
-# RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
-# -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
-RUN . ${ACTIVATE} && cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release
 
 ENV ENVIRONMENT="${OPENRV_REPO_DIR}/environment"
 
@@ -114,20 +127,6 @@ RUN . ${ENVIRONMENT} && echo -e "\n\e[1;32mRun the following lines to copy your 
 
 
 RUN echo ${OPENRV_REPO_DIR} && cat ${OPENRV_REPO_DIR}/build_name.txt
-
-
-# Todo
-# - [ ] Cleanup ${HOME}/OpenRV/_build
-# - [ ] Cleanup ${HOME}/OpenRV/_install
-# - [ ] Cleanup ${HOME}/Qt
-# $ du -hs ${HOME}/OpenRV/_build
-# 14G     /home/rv/OpenRV/_build
-# $ du -hs ${HOME}/OpenRV/_install
-# 1.4G    /home/rv/OpenRV/_install
-# $ du -hs ${HOME}/Qt
-# 4.4G    /home/rv/Qt
-RUN rm -rf ${OPENRV_REPO_DIR}/_build
-RUN rm -rf ${HOME}/Qt
 
 
 CMD ["/bin/bash"]
