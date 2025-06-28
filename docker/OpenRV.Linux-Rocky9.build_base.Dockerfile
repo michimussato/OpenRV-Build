@@ -1,4 +1,4 @@
-FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
+FROM rockylinux/rockylinux:9-minimal AS openrv_linux_rocky9_build_base
 # Build:
 # /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest .
 #

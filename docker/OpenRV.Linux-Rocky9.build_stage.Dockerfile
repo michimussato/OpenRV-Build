@@ -6,16 +6,18 @@ FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_
 # Ref: https://stackoverflow.com/a/55734437/2207196
 # docker run --hostname openrv_linux_rocky9_build_stage --rm --name openrv_linux_rocky9_build_stage openstudiolandscapes/openrv_linux_rocky9_build_stage:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 #
-# Exec:
+# Exec bash:
 # docker container exec --interactive --tty openrv_linux_rocky9_build_stage /bin/bash
+# Exec rv:
+# docker container exec --interactive --tty openrv_linux_rocky9_build_stage /home/rv/OpenRV/_install/bin/rv
 #
 # Copy OpenRV tar to host:
 # docker cp openrv_linux_rocky9_build_stage:/home/rv/OpenRV/OpenRV-Rocky9-x86_64-3.0.0.tar.gz ~/Downloads
 #
 # Export Docker image to tar:
-# docker save --output openrv_linux_rocky9_build_stage.tar 8a47415c84c5
+# docker save --output openrv_linux_rocky9_build_stage.tar openstudiolandscapes/openrv_linux_rocky9_build_stage:latest
 # Convert tar to Apptainer
-# apptainer build openrv_linux_rocky9_build_stage.sif openrv_linux_rocky9_build_stage.tar
+# apptainer build openrv_linux_rocky9_build_stage.sif docker-archive:openrv_linux_rocky9_build_stage.tar
 # Run OpenRV from Apptainer
 # apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER openrv_linux_rocky9_build_stage.sif /home/rv/OpenRV/_install/bin/rv
 
