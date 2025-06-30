@@ -67,7 +67,7 @@ sudo dnf install apptainer time
 ## Build
 
 ```
-/usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer build --notest --build-arg-file ../.env --warn-unused-build-args OpenRV.sif OpenRV.def 2>&1 | tee .log
+/usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer build --notest --build-arg-file .env --warn-unused-build-args OpenRV.sif apptainer/OpenRV.def
 ```
 
 ## Non Free Codecs

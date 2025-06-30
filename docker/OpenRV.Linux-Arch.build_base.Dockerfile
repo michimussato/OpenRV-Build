@@ -17,6 +17,16 @@ USER root
 
 WORKDIR /root
 
+# https://gist.github.com/SiyuanQi-zz/600d1ce536791b7a3bd2e59fdbe69e66
+# https://support.codeweavers.com/en_US/missinglibosmesa82
+# https://bbs.archlinux.org/viewtopic.php?id=283057
+RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n\n" >> /etc/pacman.conf
+
+# depends=('alsa-lib' 'libaio' 'mesa' 'tk' 'tcsh' 'opencl-icd-loader' 'glu' 'nss'
+#         'libxcomposite' 'libxcursor' 'xcb-util-keysyms' 'libxrandr' 'libva'
+#         'xcb-util-wm' 'xcb-util-renderutil' 'libxkbcommon-x11' 'libvdpau' 'libxtst'
+#         'libva' 'xcb-util-keysyms' 'libnsl' 'xcb-util-image' 'libcups' 'libpulse')
+
 # enable epel crb and devel packages
 RUN \
     pacman -Syy --disable-download-timeout --noconfirm && \
@@ -41,6 +51,8 @@ RUN \
         nasm \
         ncurses \
         nss \
+        lib32-mesa \
+        lib32-mesa-utils \
         libtool \
         libxkbcommon \
         libxcomposite \
@@ -76,8 +88,8 @@ RUN \
 
 # The cmake in dnf is not recent enough, install from the CMake site \
 RUN curl \
-        -L https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
-        -o cmake.sh && \
+        --location https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
+        --output cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \
     rm -rf cmake.sh
 
