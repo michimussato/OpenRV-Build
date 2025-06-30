@@ -3,6 +3,7 @@
   * [Arch](#arch)
     * [Secondary Deps](#secondary-deps)
   * [Debian](#debian)
+    * [Ubuntu](#ubuntu)
 * [Red Hat](#red-hat)
 * [OpenRV](#openrv)
   * [Resources](#resources)
@@ -43,6 +44,25 @@ sudo pacman -Syy gocryptfs
 
 ```shell
 sudo apt-get install apptainer time
+```
+
+```shell
+$ sudo apt update
+$ sudo apt install -y wget
+$ cd /tmp
+$ wget https://github.com/apptainer/apptainer/releases/download/v1.4.1/apptainer_1.4.1_amd64.deb
+$ sudo apt install -y ./apptainer_1.4.1_amd64.deb
+```
+
+### Ubuntu
+
+```shell
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+
+sudo add-apt-repository -y ppa:apptainer/ppa
+sudo apt-get update
+sudo apt-get install -y apptainer
 ```
 
 # Red Hat

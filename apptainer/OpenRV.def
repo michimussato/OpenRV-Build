@@ -1,7 +1,14 @@
 BootStrap: docker
 # https://hub.docker.com/r/rockylinux/rockylinux/tags
 From: rockylinux/rockylinux:9
-# From: rockylinux:9.6
+
+# Tested on:
+# - [x] Manjaro
+#   - [ ] Functional
+# - [x] Ubuntu 22.04
+#   - [x] Functional
+# - [x] Rocky9
+#   - [x] Functional
 
 %post
 
