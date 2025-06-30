@@ -81,9 +81,9 @@ From: rockylinux/rockylinux:9
 
     ## QT
     export QT_QPA_PLATFORM="offscreen"
-    # mkdir -p /build/Qt
+    mkdir -p /build/Qt
 
-    # pushd /build/Qt
+    pushd /build/Qt
     # Download ninja from GitHub to get a more recent version.
     wget https://github.com/ninja-build/ninja/releases/download/v{{ NINJA_VERSION }}/ninja-linux.zip
     unzip ninja-linux.zip -d ./ninja
@@ -122,22 +122,22 @@ From: rockylinux/rockylinux:9
         --archives icu qt3d qtbase qtconnectivity qtdeclarative qtgamepad qtgraphicaleffects qtimageformats qtlocation qtmultimedia qtquickcontrols qtquickcontrols2 qtremoteobjects qtscxml qtsensors qtserialbus qtserialport qtspeech qtsvg qttools qttranslations qtwayland qtwebchannel qtwebsockets qtwebview qtx11extras qtxmlpatterns
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
-    # popd
+    popd
 
     ## OPENRV
-    # mkdir -p /build/OpenRV
+    mkdir -p /build/OpenRV
 
-    # pushd /build/OpenRV
+    pushd /build/OpenRV
     git clone \
         --recursive \
-        https://github.com/AcademySoftwareFoundation/OpenRV.git
+        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        .
     # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
 
     # export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
     export RV_INST="{{ RV_INST }}"
 
-    pushd ~/OpenRV
     source ./rvcmds.sh
     time rvsetup
     rvcfg \
@@ -148,7 +148,7 @@ From: rockylinux/rockylinux:9
     rvinst
     popd
 
-    rm -rf ~/OpenRV
+    # rm -rf /build/OpenRV
     # rm -rf {{ QT_ROOT }}
 
     # CLEANUP
