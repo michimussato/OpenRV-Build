@@ -1,13 +1,13 @@
-FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
+FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 # Build:
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_base:$(date +"%Y-%m-%d_%H-%M-%S") .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_arch_build_base:latest --tag openstudiolandscapes/openrv_linux_arch_build_base:$(date +"%Y-%m-%d_%H-%M-%S") .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
-# docker run --hostname openrv_linux_rocky9_build_base --rm --name openrv_linux_rocky9_build_base openstudiolandscapes/openrv_linux_rocky9_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# docker run --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 #
 # Exec:
-# docker container exec --interactive --tty openrv_linux_rocky9_build_base /bin/bash
+# docker container exec --interactive --tty openrv_linux_arch_build_base /bin/bash
 
 # Tested and verified: [x] (2025-06-26)
 
@@ -15,75 +15,71 @@ FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 
 USER root
 
+WORKDIR /root
+
 # enable epel crb and devel packages
 RUN \
-    dnf upgrade -y && \
-    dnf install -y epel-release && \
-    dnf config-manager --set-enabled crb devel && \
-    dnf install -y \
-        # RV requirements
-        alsa-lib-devel \
+    pacman -Syy --disable-download-timeout --noconfirm && \
+    pacman -Syu --disable-download-timeout --noconfirm && \
+    pacman -S --disable-download-timeout --noconfirm \
+        alsa-lib \
         autoconf \
         automake \
-        avahi-compat-libdns_sd-devel \
+        avahi \
         bison \
-        bzip2-devel \
-        cmake-gui \
-        curl-devel \
+        bzip2 \
+        cmake \
+        curl \
         diffutils \
         flex \
         git \
         gcc \
-        gcc-c++ \
-        libXcomposite \
-        libXi-devel \
-        libaio-devel \
-        libffi-devel \
+        libxcomposite \
+        libxi \
+        libaio \
+        libffi \
         nasm \
-        ncurses-devel \
+        ncurses \
         nss \
         libtool \
         libxkbcommon \
-        libXcomposite \
-        libXdamage \
-        libXrandr \
-        libXtst \
-        libXcursor \
-        mesa-libGLU \
-        mesa-libGLU-devel \
-        mesa-libOSMesa \
-        mesa-libOSMesa-devel \
+        libxcomposite \
+        libxdamage \
+        libxrandr \
+        libxtst \
+        libxcursor \
+        mesa \
+        mesa-utils \
+        glu \
+        make \
         meson \
-        ninja-build \
-        openssl-devel \
+        ninja \
+        openssl \
         patch \
-        perl-FindBin \
-        pulseaudio-libs \
-        pulseaudio-libs-glib2 \
+        perl \
+        pulseaudio \
         ocl-icd \
-        ocl-icd-devel \
         opencl-headers \
-        qt5-qtbase-devel \
-        readline-devel \
-        sqlite-devel \
+        qt5-base \
+        readline \
+        sqlite \
         sudo \
-        tcl-devel \
+        tcl \
         tcsh \
-        tk-devel \
+        tk \
+        unzip \
         wget \
         yasm \
         zip \
-        zlib-devel \
-        systemd-devel && \
-    # The cmake in dnf is not recent enough, install from the CMake site
-    curl  \
+        zlib \
+        systemd
+
+# The cmake in dnf is not recent enough, install from the CMake site \
+RUN curl \
         -L https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
         -o cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \
-    rm -rf cmake.sh && \
-    # Clearing dnf caches
-    dnf clean all && \
-    rm -rf /var/cache/yum
+    rm -rf cmake.sh
 
 # create and run as user rv
 RUN useradd -u 1001 -ms /bin/bash rv
