@@ -120,6 +120,7 @@ rvcfg -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="hevc"
 
 ```
 apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /opt/OpenRV/bin/rv
+# i.e. apptainer exec --nv --bind /run/user/$UID OpenRV.sif /opt/OpenRV/bin/rv -rthreads $(nproc) -workItemThreads $(nproc) -diff '/home/user/Downloads/Big_Buck_Bunny_1080_10s_5MB_AV1.mp4' '/home/user/Downloads/Big_Buck_Bunny_1080_10s_5MB_h264.mp4'
 ```
 
 ### Issues
