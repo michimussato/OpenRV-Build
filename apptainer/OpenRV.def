@@ -1,14 +1,15 @@
 BootStrap: docker
 # https://hub.docker.com/r/rockylinux/rockylinux/tags
-From: rockylinux:9
+From: rockylinux/rockylinux:9
 # From: rockylinux:9.6
 
 %post
 
-    time dnf install -y git which
-    time dnf install -y epel-release
-    time dnf config-manager --set-enabled crb devel
-    time dnf install -y \
+    dnf upgrade -y
+    dnf install -y which
+    dnf install -y epel-release
+    dnf config-manager --set-enabled crb devel
+    dnf install -y \
         alsa-lib-devel \
         autoconf \
         automake \
@@ -17,7 +18,9 @@ From: rockylinux:9
         bzip2-devel \
         cmake-gui \
         curl-devel \
+        diffutils \
         flex \
+        git \
         gcc \
         gcc-c++ \
         libXcomposite \
@@ -34,6 +37,8 @@ From: rockylinux:9
         libXrandr \
         libXtst \
         libXcursor \
+        mesa-libGLU \
+        mesa-libGLU-devel \
         mesa-libOSMesa \
         mesa-libOSMesa-devel \
         meson \
@@ -46,27 +51,20 @@ From: rockylinux:9
         ocl-icd \
         ocl-icd-devel \
         opencl-headers \
-        python3 \
-        python3-devel \
         qt5-qtbase-devel \
         readline-devel \
         sqlite-devel \
-        systemd-devel \
         tcl-devel \
         tcsh \
         tk-devel \
+        wget \
         yasm \
         zip \
-        zlib-devel
-    time dnf config-manager --set-disabled devel
-    time dnf install -y \
-        mesa-libGLU \
-        mesa-libGLU-devel
-
-    # Note: /usr/bin/python needs to exist for OpenRV to build correctly.
-    # ln -sf /usr/bin/python3.9 /usr/bin/python
-    # python -m pip install --root-user-action=ignore --upgrade pip setuptools setuptools_scm wheel
-    # time python3 -m pip install --upgrade pip setuptools setuptools_scm wheel
+        zlib-devel \
+        systemd-devel
+    dnf config-manager --set-disabled devel
+    dnf clean all
+    rm -rf /var/cache/yum
 
     # BUILD
     mkdir -p /build
@@ -75,92 +73,71 @@ From: rockylinux:9
     mkdir -p /build/cmake
 
     pushd /build/cmake
-    time curl --location \
-        --remote-name \
-        https://github.com/Kitware/CMake/releases/download/v{{ CMAKE_VERSION }}/cmake-{{ CMAKE_VERSION }}.tar.gz
-    time tar -zxvf cmake-{{ CMAKE_VERSION }}.tar.gz
-    cd cmake-{{ CMAKE_VERSION }}
-    time ./bootstrap --parallel=$(nproc)
-    time make -j$(nproc)
-    time make install
-
-    # [ $(which cmake) == "/usr/local/bin/cmake" ] || echo "wrong cmake" && exit 1
-    which cmake
-    # [ $(cmake --version) == "cmake version {{ CMAKE_VERSION }}" ] || echo "wrong cmake version" && exit 1
-    cmake --version
+    curl --location https://github.com/Kitware/CMake/releases/download/v{{ CMAKE_VERSION }}/cmake-{{ CMAKE_VERSION }}-linux-x86_64.sh \
+        --output cmake.sh
+    sh cmake.sh --prefix=/usr/local/ --skip-license
+    rm -rf cmake.sh
     popd
-
-    # rm -rf /build/cmake
 
     ## QT
-    mkdir -p /build/Qt
+    export QT_QPA_PLATFORM="offscreen"
+    # mkdir -p /build/Qt
 
-    pushd /build/Qt
-    # QT Online Installer for Linux
-    # https://doc.qt.io/qt-6/get-and-install-qt-cli.html#downloading-qt-online-installer-with-command-line-interface
-    # https://doc.qt.io/archives/qt-5.15/get-and-install-qt-cli.html#downloading-qt-online-installer-with-command-line-interface
+    # pushd /build/Qt
+    # Download ninja from GitHub to get a more recent version.
+    wget https://github.com/ninja-build/ninja/releases/download/v{{ NINJA_VERSION }}/ninja-linux.zip
+    unzip ninja-linux.zip -d ./ninja
+    echo 'export PATH=${HOME}/ninja:${PATH}' >> ${HOME}/.bash_profile
+    export PATH="${HOME}/ninja:${PATH}"
 
-    time curl --location \
-        --remote-name \
-        https://download.qt.io/archive/online_installers/$(echo {{ QT_INSTALLER_VERSION }} | cut -d "." -f 1,2)/qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
-    chmod a+x qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run
-    # Not required:
-    # - Logs
-    # - Android
-    # - iOS
-    # - WebAssembly
-    time ./qt-unified-linux-x64-{{ QT_INSTALLER_VERSION }}-online.run \
-        --verbose \
-        --email "{{ QT_EMAIL }}" \
-        --password "{{ QT_PASSWORD }}" \
-        --root "{{ QT_ROOT }}" \
-        --platform minimal \
-        --confirm-command \
-        --accept-licenses \
-        --accept-obligations \
-        --accept-messages \
-        install \
-        qt.qt5.5152.qtpdf \
-        qt.qt5.5152.qtpurchasing \
-        qt.qt5.5152.qtvirtualkeyboard \
-        qt.qt5.5152.qtquicktimeline \
-        qt.qt5.5152.qtlottie \
-        qt.qt5.5152.debug_info \
-        qt.qt5.5152.qtscript \
-        qt.qt5.5152.qtcharts \
-        qt.qt5.5152.qtwebengine \
-        qt.qt5.5152.qtwebglplugin \
-        qt.qt5.5152.qtnetworkauth \
-        qt.qt5.5152.qtwaylandcompositor \
-        qt.qt5.5152.qtdatavis3d \
-        qt.qt5.5152.logs \
-        qt.qt5.5152 \
-        qt.qt5.5152.src \
-        qt.qt5.5152.gcc_64 \
-        qt.qt5.5152.qtquick3d
-    popd
+    # Using pyenv to make sure that python and python3 command points to the same version.
+    # Install pyenv
+    git clone http://github.com/pyenv/pyenv.git ${HOME}/.pyenv
+    export PYENV_ROOT="${HOME}/.pyenv"
+    export PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
+    echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
+    echo 'export PATH="$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
 
-    # rm -rf /build/Qt
+    # Install specific version of Python
+    pyenv install {{ PY_ENV_PYHON }}
 
-    ## OPENRV
-    mkdir -p /build/OpenRV
+    # Set as the global version
+    pyenv global {{ PY_ENV_PYHON }}
 
-    pushd /build/OpenRV
-    git clone \
-        --recursive \
-        https://github.com/AcademySoftwareFoundation/OpenRV.git \
-        .
-    # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
-    # cd OpenRV
-    which python3
-    python3 --version
-    # [ $(python3 --version) == "Python 3.9.x" ] || echo "wrong Python version" && exit 1
-    python3 -m pip install --requirement requirements.txt
+    pip install --upgrade pip
+    python -m pip install aqtinstall
+
+    python -m aqt --help
+    # https://aqtinstall.readthedocs.io/en/stable/configuration.html#configuration
+    # WARNING : Caught ChecksumDownloadFailure, terminating installer workers
+    # ERROR   : Failed to download checksum for the file '5.15.2-0-202011130601qtdeclarative-Linux-RHEL_7_6-GCC-Linux-RHEL_7_6-X86_64-debug-symbols.7z' from mirrors '['https://download.qt.io']
+    # ==============================Suggested follow-up:==============================
+    # * Check your internet connection
+    # * Consider modifying `requests.max_retries_to_retrieve_hash` in settings.ini
+    # * Consider modifying `mirrors.trusted_mirrors` in settings.ini (see https://aqtinstall.readthedocs.io/en/stable/configuration.html#configuration)
+
+    python -m aqt install-qt linux desktop {{ QT_HOME_VERSION }} gcc_64 -O {{ QT_ROOT }} \
+        -m debug_info qtcharts qtdatavis3d qtlottie qtnetworkauth qtpurchasing qtquick3d qtquicktimeline qtscript qtvirtualkeyboard qtwaylandcompositor qtwebengine qtwebglplugin \
+        --archives icu qt3d qtbase qtconnectivity qtdeclarative qtgamepad qtgraphicaleffects qtimageformats qtlocation qtmultimedia qtquickcontrols qtquickcontrols2 qtremoteobjects qtscxml qtsensors qtserialbus qtserialport qtspeech qtsvg qttools qttranslations qtwayland qtwebchannel qtwebsockets qtwebview qtx11extras qtxmlpatterns
 
     export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
+    # popd
+
+    ## OPENRV
+    # mkdir -p /build/OpenRV
+
+    # pushd /build/OpenRV
+    git clone \
+        --recursive \
+        https://github.com/AcademySoftwareFoundation/OpenRV.git
+    # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
+
+    # export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
     export RV_INST="{{ RV_INST }}"
 
+    pushd ~/OpenRV
     source ./rvcmds.sh
     time rvsetup
     rvcfg \
@@ -171,19 +148,19 @@ From: rockylinux:9
     rvinst
     popd
 
-    # rm -rf /build/OpenRV
+    rm -rf ~/OpenRV
+    # rm -rf {{ QT_ROOT }}
 
     # CLEANUP
 
     # build
     # $ apptainer exec --nv --bind /run/user/$UID OpenRV.sif du -hs /build
     # 15G     /build
-    rm -rf /build
+    # rm -rf /build
 
     # Todo
     #  - [ ] Remove /opt/Qt?
     #  - [ ] Remove cmake?
-    #  - [ ] rockylinux:9.6-minimal?
 
     dnf autoremove -y
     dnf clean all

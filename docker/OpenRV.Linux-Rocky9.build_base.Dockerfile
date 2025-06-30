@@ -77,8 +77,8 @@ RUN \
         systemd-devel && \
     # The cmake in dnf is not recent enough, install from the CMake site
     curl  \
-        -L https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
-        -o cmake.sh && \
+        --location https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
+        --output cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \
     rm -rf cmake.sh && \
     # Clearing dnf caches
