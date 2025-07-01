@@ -137,30 +137,30 @@ RUN cat ./build_name.txt
 
 # RUN echo ${BUILD_NAME}
 
-# Create Tar
-# Source the environment variables file
-RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
-RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
-# RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
-RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
-# Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
-#RUN \
-#    . ${ENVIRONMENT} && \
-#    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-#    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-#    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
-
-
-#RUN \
-#    echo ${OPENRV_REPO_DIR} && \
-#    cat ${OPENRV_REPO_DIR}/build_name.txt
-
-
-FROM scratch AS openrv_linux_rocky9_build_stage_export
-
-RUN echo $(${BUILD_NAME})
-
-COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
-
-CMD ["/bin/bash"]
+## Create Tar
+## Source the environment variables file
+#RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
+#RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
+## RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
+#RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
+#RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
+## Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
+##RUN \
+##    . ${ENVIRONMENT} && \
+##    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
+##    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
+##    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+#
+#
+##RUN \
+##    echo ${OPENRV_REPO_DIR} && \
+##    cat ${OPENRV_REPO_DIR}/build_name.txt
+#
+#
+#FROM scratch AS openrv_linux_rocky9_build_stage_export
+#
+#RUN echo $(${BUILD_NAME})
+#
+#COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
+#
+#CMD ["/bin/bash"]
