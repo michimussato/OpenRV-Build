@@ -126,6 +126,7 @@ ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
 # ENV BUILD_NAME="eval echo hello"
 
 RUN echo $(${BUILD_NAME})
+ENV BUILD_NAMEA="$(echo $(${BUILD_NAME}))"
 
 # RUN echo ${BUILD_NAME}
 
