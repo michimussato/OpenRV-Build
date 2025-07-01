@@ -106,11 +106,7 @@ RUN \
     echo "Determining build platform..." && \
     if [ -f /etc/os-release ]; then \
         . /etc/os-release; \
-        if [ "${NAME}" = "Rocky Linux" ]; then \
-            BUILD_PLATFORM="Rocky${VERSION_ID%.*}"; \
-        else \
-            BUILD_PLATFORM=$(echo ${NAME}${VERSION_ID} | tr ' ' '_'); \
-        fi \
+        BUILD_PLATFORM=$(echo ${NAME}${VERSION_ID} | tr ' ' '_'); \
     else \
         BUILD_PLATFORM=$(uname -s); \
     fi && \
@@ -125,6 +121,10 @@ RUN \
     echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt && \
     echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
+
+ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo ${BUILD_NAME}"
+
+RUN echo ${BUILD_NAME}
 
 # Create Tar
 # Source the environment variables file
@@ -147,6 +147,8 @@ RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
 
 
 FROM scratch AS openrv_linux_rocky9_build_stage_export
+
+ENV ENVIRONMENT
 
 COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
 
