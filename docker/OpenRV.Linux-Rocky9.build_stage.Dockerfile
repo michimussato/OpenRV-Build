@@ -131,7 +131,7 @@ RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 # RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
 RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-RUN . ${ENVIRONMENT} && ln -sfn ${BUILD_NAME}.tar.gz OpenRV.tar.gz
+RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
 # Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
 RUN \
     . ${ENVIRONMENT} && \
@@ -148,10 +148,10 @@ RUN \
 FROM openstudiolandscapes/openrv_linux_rocky9_build_stage:latest AS openrv_linux_rocky9_build_stage_export
 
 USER rv
-WORKDIR "/home/rv"
+WORKDIR /home/rv
 
 
-COPY --from=openrv_linux_rocky9_build_stage OpenRV.tar.gz .
+COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
 # COPY --from=openrv_linux_rocky9_build_stage ${OPENRV_REPO_DIR}/build_name.txt .
 
 
