@@ -128,7 +128,7 @@ RUN . ${ENVIRONMENT} && echo ${BUILD_NAME} > ./build_name.txt
 ENV BUILD_NAMEA=$(<build_name.txt)
 
 RUN echo ${BUILD_NAMEA}
-RUN echo "BUILD_NAMEA=BUILD_NAMEA"
+RUN echo "BUILD_NAMEA=$BUILD_NAMEA"
 # ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
 # # ENV BUILD_NAME="eval echo hello"
 
