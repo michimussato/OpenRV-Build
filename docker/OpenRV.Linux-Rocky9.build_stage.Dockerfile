@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_rocky9_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Unix Makefiles" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
