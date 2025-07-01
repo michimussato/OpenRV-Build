@@ -152,7 +152,7 @@ RUN \
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 # RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
-RUN . ${ENVIRONMENT} && tar -czvf "${RV_TARBALL}/${BUILD_NAME}.tar.gz" -C ${RV_INST} .
+RUN . ${ENVIRONMENT} && mkdir -p ${RV_TARBALL} && tar -czvf "${RV_TARBALL}/${BUILD_NAME}.tar.gz" -C ${RV_INST} .
 # RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
 # Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
 #RUN \
