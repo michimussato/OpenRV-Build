@@ -173,6 +173,7 @@ From: rockylinux/rockylinux:9
     dnf clean all
 
     cp /lib64/libc.so.6 {{ RV_INST }}/lib
+    cp /lib64/libcrypt.so.2 {{ RV_INST }}/lib
 
 %labels
     Author "Jean First"
