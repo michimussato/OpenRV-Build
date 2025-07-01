@@ -42,6 +42,7 @@ ARG BUILD_ARGS=""
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
 ENV RV_INST="${OPENRV_REPO_DIR}/_install"
+ENV RV_TARBALL="${OPENRV_REPO_DIR}/_tarball"
 
 WORKDIR ${OPENRV_REPO_DIR}
 
@@ -122,10 +123,12 @@ RUN \
     echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
-RUN . ${ENVIRONMENT} && echo "BUILD_NAME=${BUILD_NAME}" > ./BUILD
-RUN . ${ENVIRONMENT} && touch ./${BUILD_NAME}
+# ENV BUILD="/home/rv/BUILD"
+# RUN . ${ENVIRONMENT} && echo "BUILD_NAME=${BUILD_NAME}" > ${BUILD}
+#ENV TAR=${BUILD_NAME}.tar.gz
+# RUN . ${ENVIRONMENT} && touch ./${BUILD_NAME}
 
-RUN cat ./BUILD
+# RUN cat ./BUILD
 
 ## RUN cat ./build_name.txt
 #ENV BUILD_NAMEA=$(<build_name.txt)
@@ -144,30 +147,31 @@ RUN cat ./BUILD
 
 # RUN echo ${BUILD_NAME}
 
-## Create Tar
-## Source the environment variables file
-#RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
-#RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
-## RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
-#RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-#RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
-## Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
-##RUN \
-##    . ${ENVIRONMENT} && \
-##    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-##    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-##    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
-#
-#
-##RUN \
-##    echo ${OPENRV_REPO_DIR} && \
-##    cat ${OPENRV_REPO_DIR}/build_name.txt
-#
-#
-#FROM scratch AS openrv_linux_rocky9_build_stage_export
-#
-#RUN echo $(${BUILD_NAME})
-#
-#COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
-#
-#CMD ["/bin/bash"]
+# Create Tar
+# Source the environment variables file
+WORKDIR
+RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
+RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
+# RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
+RUN . ${ENVIRONMENT} && tar -czvf "${RV_TARBALL}/${BUILD_NAME}.tar.gz" -C ${RV_INST} .
+# RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
+# Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
+#RUN \
+#    . ${ENVIRONMENT} && \
+#    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
+#    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
+#    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+
+
+#RUN \
+#    echo ${OPENRV_REPO_DIR} && \
+#    cat ${OPENRV_REPO_DIR}/build_name.txt
+
+
+FROM scratch AS openrv_linux_rocky9_build_stage_export
+
+RUN echo ${RV_TARBALL}
+
+COPY --from=openrv_linux_rocky9_build_stage ${RV_TARBALL} .
+
+CMD ["/bin/bash"]
