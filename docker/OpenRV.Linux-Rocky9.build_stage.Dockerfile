@@ -124,7 +124,7 @@ RUN \
 
 ENV BUILD_NAME="eval . ${ENVIRONMENT} echo \${BUILD_NAME}"
 
-RUN echo ${BUILD_NAME}
+# RUN echo ${BUILD_NAME}
 
 # Create Tar
 # Source the environment variables file
@@ -148,7 +148,7 @@ RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
 
 FROM scratch AS openrv_linux_rocky9_build_stage_export
 
-RUN echo ${BUILD_NAME}
+# RUN echo ${BUILD_NAME}
 
 COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
 
