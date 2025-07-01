@@ -71,6 +71,7 @@ RUN \
         tcsh \
         tk-devel \
         wget \
+        which \
         yasm \
         zip \
         zlib-devel \

@@ -72,7 +72,7 @@ RUN \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
     # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
-    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
+    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release -Wno-dev -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
@@ -126,6 +126,7 @@ RUN \
 # Source the environment variables file
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
+# RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
 RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
 RUN \
     . ${ENVIRONMENT} && \
