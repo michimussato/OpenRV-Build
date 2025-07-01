@@ -1,6 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_rocky9_build_stage
 # Build:
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") .
+# CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg CMAKE_GENERATOR="Unix Makefiles" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -35,6 +36,7 @@ ENV HOME="/home/rv"
 
 ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=""
 ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
+ARG CMAKE_GENERATOR="Ninja"
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
@@ -70,7 +72,7 @@ RUN \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
     # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
-    cmake -B ${OPENRV_REPO_DIR}/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
+    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target

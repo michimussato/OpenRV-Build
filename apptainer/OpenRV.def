@@ -172,6 +172,8 @@ From: rockylinux/rockylinux:9
     dnf autoremove -y
     dnf clean all
 
+    cp /lib64/libc.so.6 {{ RV_INST }}/lib
+
 %labels
     Author "Jean First"
     Contributors "Jean First, Michael Mussato"
