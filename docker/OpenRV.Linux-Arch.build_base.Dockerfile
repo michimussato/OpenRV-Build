@@ -20,18 +20,38 @@ WORKDIR /root
 # https://gist.github.com/SiyuanQi-zz/600d1ce536791b7a3bd2e59fdbe69e66
 # https://support.codeweavers.com/en_US/missinglibosmesa82
 # https://bbs.archlinux.org/viewtopic.php?id=283057
+#
+# # Add [extra] (default: enabled)
+# RUN echo -e "\n[extra]\nInclude = /etc/pacman.d/mirrorlist\n\n" >> /etc/pacman.conf
+#
+# Add [multilib] (default: disabled)
 RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n\n" >> /etc/pacman.conf
+RUN pacman -Syyu --disable-download-timeout --noconfirm
 
 # depends=('alsa-lib' 'libaio' 'mesa' 'tk' 'tcsh' 'opencl-icd-loader' 'glu' 'nss'
 #         'libxcomposite' 'libxcursor' 'xcb-util-keysyms' 'libxrandr' 'libva'
 #         'xcb-util-wm' 'xcb-util-renderutil' 'libxkbcommon-x11' 'libvdpau' 'libxtst'
 #         'libva' 'xcb-util-keysyms' 'libnsl' 'xcb-util-image' 'libcups' 'libpulse')
 
-# enable epel crb and devel packages
+
+# https://stackoverflow.com/questions/66486937/where-can-i-get-libglu-so-1-on-arch-linux
+# sudo pacman -Syyu --noconfirm pkgfile
+# sudo pkgfile --update
+# $ pkgfile libOSMesa.so
+# extra/mesa-amber
+# multilib/lib32-mesa-amber
+# $ pkgfile libGLU.so
+# extra/glu
+# multilib/lib32-glu
+
+
+
+# AUR
+# yay: https://itsfoss.com/install-yay-arch-linux/
+
+
 RUN \
-    pacman -Syy --disable-download-timeout --noconfirm && \
-    pacman -Syu --disable-download-timeout --noconfirm && \
-    pacman -S --disable-download-timeout --noconfirm \
+    pacman -S --disable-download-timeout --noconfirm --needed \
         alsa-lib \
         autoconf \
         automake \
@@ -51,8 +71,6 @@ RUN \
         nasm \
         ncurses \
         nss \
-        lib32-mesa \
-        lib32-mesa-utils \
         libtool \
         libxkbcommon \
         libxcomposite \
@@ -61,6 +79,7 @@ RUN \
         libxtst \
         libxcursor \
         mesa \
+        mesa-amber \
         mesa-utils \
         glu \
         make \
