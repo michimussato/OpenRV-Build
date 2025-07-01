@@ -169,6 +169,7 @@ RUN . ${ENVIRONMENT} && tar -czvf "${RV_TARBALL}/${BUILD_NAME}.tar.gz" -C ${RV_I
 
 FROM scratch AS openrv_linux_rocky9_build_stage_export
 
+ENV RV_TARBALL="/home/rv/OpenRV/_tarball"
 RUN echo ${RV_TARBALL}
 
 COPY --from=openrv_linux_rocky9_build_stage ${RV_TARBALL} .
