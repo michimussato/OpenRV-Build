@@ -147,11 +147,11 @@ RUN \
 
 FROM openstudiolandscapes/openrv_linux_rocky9_build_stage:latest AS openrv_linux_rocky9_build_stage_export
 
-USER rv
-WORKDIR /home/rv
+USER root
+# WORKDIR /home/rv
 
 
-COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
+COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz /
 # COPY --from=openrv_linux_rocky9_build_stage ${OPENRV_REPO_DIR}/build_name.txt .
 
 
