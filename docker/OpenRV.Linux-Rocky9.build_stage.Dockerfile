@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_rocky9_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./out .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -122,7 +122,8 @@ RUN \
     echo "ARCHITECTURE=${ARCHITECTURE}" >> ${ENVIRONMENT} && \
     BUILD_NAME=OpenRV-${BUILD_PLATFORM}-${ARCHITECTURE}-${VERSION} && \
     echo "BUILD_NAME=${BUILD_NAME}" >> ${ENVIRONMENT} && \
-    echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt
+    echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt && \
+    echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
 # Create Tar
@@ -133,26 +134,20 @@ RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
 RUN . ${ENVIRONMENT} && cp ${BUILD_NAME}.tar.gz /home/rv/OpenRV.tar.gz
 # Todo: https://stackoverflow.com/questions/33377022/how-to-copy-files-from-dockerfile-to-host
-RUN \
-    . ${ENVIRONMENT} && \
-    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+#RUN \
+#    . ${ENVIRONMENT} && \
+#    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
+#    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
+#    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
 
 
-RUN \
-    echo ${OPENRV_REPO_DIR} &&  \
-    cat ${OPENRV_REPO_DIR}/build_name.txt
+#RUN \
+#    echo ${OPENRV_REPO_DIR} && \
+#    cat ${OPENRV_REPO_DIR}/build_name.txt
 
 
-FROM openstudiolandscapes/openrv_linux_rocky9_build_stage:latest AS openrv_linux_rocky9_build_stage_export
-
-USER root
-WORKDIR /root
-
+FROM scratch AS openrv_linux_rocky9_build_stage_export
 
 COPY --from=openrv_linux_rocky9_build_stage /home/rv/OpenRV.tar.gz .
-# COPY --from=openrv_linux_rocky9_build_stage ${OPENRV_REPO_DIR}/build_name.txt .
-
 
 CMD ["/bin/bash"]
