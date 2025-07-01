@@ -128,6 +128,8 @@ ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
 RUN echo $(${BUILD_NAME})
 ENV BUILD_NAMEA="$(echo $(${BUILD_NAME}))"
 
+RUN echo ${BUILD_NAMEA}
+
 # RUN echo ${BUILD_NAME}
 
 # Create Tar
