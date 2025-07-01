@@ -124,7 +124,10 @@ RUN \
 
 RUN . ${ENVIRONMENT} && echo ${BUILD_NAME} > ./build_name.txt
 
-RUN cat ./build_name.txt
+# RUN cat ./build_name.txt
+ENV BUILD_NAME=$(<./build_name.txt)
+
+RUN echo ${BUILD_NAME}
 # ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
 # # ENV BUILD_NAME="eval echo hello"
 
