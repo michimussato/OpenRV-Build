@@ -122,8 +122,8 @@ RUN \
     echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
-# ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
-ENV BUILD_NAME="eval echo hello"
+ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
+# ENV BUILD_NAME="eval echo hello"
 
 RUN echo $(${BUILD_NAME})
 
