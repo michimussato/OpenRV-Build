@@ -149,7 +149,6 @@ RUN \
 
 # Create Tar
 # Source the environment variables file
-WORKDIR
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
 # RUN . ${ENVIRONMENT} && cp /lib64/libc.so.6 ${RV_INST}/lib
