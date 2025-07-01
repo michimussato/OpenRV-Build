@@ -122,13 +122,18 @@ RUN \
     echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
-ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
-# ENV BUILD_NAME="eval echo hello"
+RUN . ${ENVIRONMENT} && echo ${BUILD_NAME} > ./build_name.txt
 
-RUN echo $(${BUILD_NAME})
-ENV BUILD_NAMEA="$(echo $(${BUILD_NAME}))"
+RUN cat ./build_name.txt
+# ENV BUILD_NAME="eval . ${ENVIRONMENT} && echo \${BUILD_NAME}"
+# # ENV BUILD_NAME="eval echo hello"
 
-RUN echo ${BUILD_NAMEA}
+# ENV FILES=$(. \${ENVIRONMENT} && echo \${BUILD_NAME})
+
+# # RUN echo $(${BUILD_NAME})
+# ENV BUILD_NAMEA="$(echo $(${BUILD_NAME}))"
+
+# RUN echo ${BUILD_NAMEA}
 
 # RUN echo ${BUILD_NAME}
 
