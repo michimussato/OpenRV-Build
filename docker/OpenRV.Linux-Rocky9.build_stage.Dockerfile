@@ -122,7 +122,7 @@ RUN \
     echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
-RUN . ${ENVIRONMENT} && echo ${BUILD_NAME} > ./BUILD
+RUN . ${ENVIRONMENT} && echo "BUILD_NAME=${BUILD_NAME}" > ./BUILD
 RUN . ${ENVIRONMENT} && touch ./${BUILD_NAME}
 
 RUN cat ./BUILD
