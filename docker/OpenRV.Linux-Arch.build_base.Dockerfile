@@ -103,10 +103,9 @@ RUN \
         yasm \
         zip \
         zlib \
-        systemd
-
-# The cmake in dnf is not recent enough, install from the CMake site \
-RUN curl \
+        systemd && \
+    # The cmake in dnf is not recent enough, install from the CMake site \
+    curl \
         --location https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.sh \
         --output cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \

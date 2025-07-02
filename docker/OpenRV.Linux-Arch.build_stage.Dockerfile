@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_arch_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_arch_build_stage:latest --tag openstudiolandscapes/openrv_linux_arch_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_arch_build_stage:latest --tag openstudiolandscapes/openrv_linux_arch_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build .
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -29,18 +29,18 @@ FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_ar
 
 # SHELL ["/bin/bash", "-c"]
 
-RUN ls -al
-
 USER rv
 ENV HOME="/home/rv"
 
 ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=""
 ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
 ARG CMAKE_GENERATOR="Ninja"
+ARG BUILD_ARGS=""
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
 ENV RV_INST="${OPENRV_REPO_DIR}/_install"
+ENV RV_TARBALL="${OPENRV_REPO_DIR}/_tarball"
 
 WORKDIR ${OPENRV_REPO_DIR}
 
@@ -105,11 +105,7 @@ RUN \
     echo "Determining build platform..." && \
     if [ -f /etc/os-release ]; then \
         . /etc/os-release; \
-        if [ "${NAME}" = "Rocky Linux" ]; then \
-            BUILD_PLATFORM="Rocky${VERSION_ID%.*}"; \
-        else \
-            BUILD_PLATFORM=$(echo ${NAME}${VERSION_ID} | tr ' ' '_'); \
-        fi \
+        BUILD_PLATFORM=$(echo ${NAME}${VERSION_ID} | tr ' ' '_'); \
     else \
         BUILD_PLATFORM=$(uname -s); \
     fi && \
@@ -121,24 +117,22 @@ RUN \
     echo "ARCHITECTURE=${ARCHITECTURE}" >> ${ENVIRONMENT} && \
     BUILD_NAME=OpenRV-${BUILD_PLATFORM}-${ARCHITECTURE}-${VERSION} && \
     echo "BUILD_NAME=${BUILD_NAME}" >> ${ENVIRONMENT} && \
-    echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt
+    echo "${BUILD_NAME}" >> ${OPENRV_REPO_DIR}/build_name.txt && \
+    echo "${BUILD_NAME}" >> ${RV_INST}/build_name.txt
 
 
 # Create Tar
 # Source the environment variables file
 RUN . ${ENVIRONMENT} && echo "Build Name: ${BUILD_NAME}"
 RUN . ${ENVIRONMENT} && cp /lib64/libcrypt.so.2 ${RV_INST}/lib
-RUN . ${ENVIRONMENT} && tar -czvf ${BUILD_NAME}.tar.gz -C ${RV_INST} .
-RUN \
-    . ${ENVIRONMENT} && \
-    echo -e "\n\e[1;32mRun the following lines to copy your OpenRV build into your ~/Downloads folder:\e[0m" && \
-    echo -e "\e[1;36msudo docker run -d --name <your_container_name> <repo>/<container>:<tag>\e[0m" && \
-    echo -e "\e[1;36msudo docker cp <your_container_name>:${OPENRV_REPO_DIR}/${BUILD_NAME}.tar.gz ~/Downloads/\e[0m\n\n"
+RUN . ${ENVIRONMENT} && mkdir -p ${RV_TARBALL} && tar -czvf "${RV_TARBALL}/${BUILD_NAME}.tar.gz" -C ${RV_INST} .
 
 
-RUN \
-    echo ${OPENRV_REPO_DIR} &&  \
-    cat ${OPENRV_REPO_DIR}/build_name.txt
 
+FROM scratch AS openrv_linux_arch_build_stage_export
+
+ENV RV_TARBALL="/home/rv/OpenRV/_tarball"
+
+COPY --from=openrv_linux_arch_build_stage ${RV_TARBALL} .
 
 CMD ["/bin/bash"]
