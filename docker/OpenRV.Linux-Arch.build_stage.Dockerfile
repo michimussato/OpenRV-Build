@@ -29,6 +29,11 @@ FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_ar
 
 # SHELL ["/bin/bash", "-c"]
 
+# Resources:
+# - https://www.linkedin.com/posts/wywarren_spent-some-time-this-weekend-figuring-how-activity-7317391328638578688-QVmW/
+# - https://www.reddit.com/r/vfx/comments/15ei9m0/anyone_has_open_rv_compiled_for_windows/
+# - https://hub.docker.com/u/aswf
+
 USER rv
 ENV HOME="/home/rv"
 
@@ -76,22 +81,31 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 
 RUN \
     . ${ACTIVATE} && \
-    SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
-    \
+    SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt
+
+
+RUN \
+    . ${ACTIVATE} && \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
     # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
     # More Args (BUILD_ARGS):
     #  -Wno-dev
-    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" ${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
-    \
+    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" ${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}"
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
-    \
+RUN \
+    . ${ACTIVATE} && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies
+
+RUN \
+    . ${ACTIVATE} && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable
     # RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
     # -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
-    cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release && \
+
+RUN \
+    . ${ACTIVATE} && \
+    cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release
     # Todo
     # - [ ] Cleanup ${HOME}/OpenRV/_build
     # - [ ] Cleanup ${HOME}/OpenRV/_install
@@ -103,7 +117,7 @@ RUN \
     # $ du -hs ${HOME}/Qt
     # 4.4G    /home/rv/Qt
     # rm -rf ${OPENRV_REPO_DIR}/_build && \
-    rm -rf ${HOME}/Qt
+    # rm -rf ${HOME}/Qt
 
 
 ENV ENVIRONMENT="${OPENRV_REPO_DIR}/environment"
