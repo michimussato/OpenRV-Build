@@ -66,6 +66,14 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 
 # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvsetup]}
 # -> rvenv && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r /home/rv/OpenRV/requirements.txt
+
+# #9 27.16 CMake Error: The following variables are used in this project, but they are set to NOTFOUND.
+# #9 27.16 Please set them or make sure they are set and tested correctly in the CMake files:
+# #9 27.16 MESAGL_LIBRARY
+# #9 27.16     linked by target "rvio_sw" in directory /home/rv/OpenRV/src/bin/imgtools/rvio_sw
+# #9 27.16
+# #9 27.74 CMake Generate step failed.  Build files cannot be regenerated correctly.
+
 RUN \
     . ${ACTIVATE} && \
     SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
