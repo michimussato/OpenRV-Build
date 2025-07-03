@@ -62,6 +62,7 @@ RUN \
         nasm \
         ncurses \
         nss \
+        libjpeg6-turbo \
         libtool \
         libxkbcommon \
         libxcomposite \
