@@ -69,7 +69,7 @@ RUN \
         libxrandr \
         libxtst \
         libxcursor \
-        mesa \
+        mesa-amber \
         glu \
         make \
         meson \
@@ -101,23 +101,28 @@ RUN \
     rm -rf cmake.sh
 
 
-# copied from Arch with mesa-amber:
-# /usr/lib/libOSMesa.so.8.0.0
-COPY docker/so/arch/usr/lib/libOSMesa.so.8.0.0 /usr/lib/
-RUN chmod 755 /usr/lib/libOSMesa.so.8.0.0
-RUN ln -s /usr/lib/libOSMesa.so.8.0.0 /usr/lib/libOSMesa.so.8
-RUN ln -s /usr/lib/libOSMesa.so.8 /usr/lib/libOSMesa.so
+## workaround when using mesa
+## - [ ] working?
+## copied from Arch with mesa-amber:
+## /usr/lib/libOSMesa.so.8.0.0
+#COPY docker/so/arch/usr/lib/libOSMesa.so.8.0.0 /usr/lib/
+#RUN chmod 755 /usr/lib/libOSMesa.so.8.0.0
+#RUN ln -s /usr/lib/libOSMesa.so.8.0.0 /usr/lib/libOSMesa.so.8
+#RUN ln -s /usr/lib/libOSMesa.so.8 /usr/lib/libOSMesa.so
 
 
-## https://archlinux.org/packages/extra/x86_64/mesa-amber/
-## amber -> mesa
-## usr/lib/libEGL_amber.so
-## usr/lib/libEGL_amber.so.0
-## usr/lib/libEGL_amber.so.0.0.0
-## usr/lib/libGLX_amber.so
-## usr/lib/libGLX_amber.so.0
-## usr/lib/libGLX_amber.so.0.0.0
-#RUN ln -s /var/lib/libOSMesa.so.8.0.0 /var/lib/libOSMesa.so.8
+# workaround when using mesa-amber
+# - [ ] working?
+# https://archlinux.org/packages/extra/x86_64/mesa-amber/
+# amber -> mesa
+# usr/lib/libEGL_amber.so.0.0.0
+RUN ln -s /usr/lib/libEGL_amber.so.0.0.0 /usr/lib/libEGL_mesa.so.0.0.0
+RUN ln -s /usr/lib/libEGL_amber.so.0 /usr/lib/libEGL_mesa.so.0
+RUN ln -s /usr/lib/libEGL_amber.so /usr/lib/libEGL_mesa.so
+# usr/lib/libGLX_amber.so.0.0.0
+RUN ln -s /usr/lib/libGLX_amber.so.0.0.0 /usr/lib/libGLX_mesa.so.0.0.0
+RUN ln -s /usr/lib/libGLX_amber.so.0 /usr/lib/libGLX_mesa.so.0
+RUN ln -s /usr/lib/libGLX_amber.so /usr/lib/libGLX_mesa.so
 
 
 # libGLX_mesa.so
