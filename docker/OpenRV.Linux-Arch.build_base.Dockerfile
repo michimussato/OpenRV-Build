@@ -5,6 +5,7 @@ FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
 # docker run --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# docker run --user root --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
 #
 # Exec:
 # docker container exec --interactive --tty openrv_linux_arch_build_base /bin/bash
@@ -25,7 +26,7 @@ WORKDIR /root
 # RUN echo -e "\n[extra]\nInclude = /etc/pacman.d/mirrorlist\n\n" >> /etc/pacman.conf
 #
 # Add [multilib] (default: disabled)
-RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\n\n" >> /etc/pacman.conf
+RUN echo -e "\n[multilib]\nInclude = /etc/pacman.d/mirrorlist\nSigLevel = PackageRequired\n\n" >> /etc/pacman.conf
 RUN pacman -Syyu --disable-download-timeout --noconfirm
 
 # depends=('alsa-lib' 'libaio' 'mesa' 'tk' 'tcsh' 'opencl-icd-loader' 'glu' 'nss'
@@ -34,21 +35,11 @@ RUN pacman -Syyu --disable-download-timeout --noconfirm
 #         'libva' 'xcb-util-keysyms' 'libnsl' 'xcb-util-image' 'libcups' 'libpulse')
 
 
-# https://stackoverflow.com/questions/66486937/where-can-i-get-libglu-so-1-on-arch-linux
-# sudo pacman -Syyu --noconfirm pkgfile
-# sudo pkgfile --update
-# $ pkgfile libOSMesa.so
-# extra/mesa-amber
-# multilib/lib32-mesa-amber
-# $ pkgfile libGLU.so
-# extra/glu
-# multilib/lib32-glu
-
-
-
 # AUR
 # yay: https://itsfoss.com/install-yay-arch-linux/
 
+# mesa does not come with libOSmesa but mesa-amber does
+# mesa and mesa-amber are in conflict
 
 RUN \
     pacman -S --disable-download-timeout --noconfirm --needed \
@@ -79,8 +70,6 @@ RUN \
         libxtst \
         libxcursor \
         mesa \
-        mesa-amber \
-        mesa-utils \
         glu \
         make \
         meson \
@@ -110,6 +99,50 @@ RUN \
         --output cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \
     rm -rf cmake.sh
+
+
+# copied from Arch with mesa-amber:
+# /usr/lib/libOSMesa.so.8.0.0
+COPY so/arch/libOSMesa.so.8.0.0 /var/lib/
+RUN chmod 755 /var/lib/libOSMesa.so.8.0.0
+RUN ln -s /var/lib/libOSMesa.so.8.0.0 /var/lib/libOSMesa.so.8
+RUN ln -s /var/lib/libOSMesa.so.8 /var/lib/libOSMesa.so
+
+# libGLX_mesa.so
+# - Manjaro
+#   - libGLX_mesa.so
+#       $ pkgfile libGLX_mesa.so
+#       extra/mesa
+#       multilib/lib32-mesa
+#       $ find / -type f -name libGLX_mesa*
+#       /usr/lib32/libGLX_mesa.so.0.0.0
+#       /usr/lib/libGLX_mesa.so.0.0.0
+#   - libOSMesa.so
+#       $ pkgfile libOSMesa.so
+#       extra/mesa-amber
+#       multilib/lib32-mesa-amber
+#       $ find / -type f -name libOSMesa*
+
+# - Arch
+#   $ pkgfile libGLX_mesa.so
+#   extra/mesa
+#   multilib/lib32-mesa
+#   $ pacman -Syyu --noconfirm mesa
+#   $ find / -type f -name libGLX_*
+#   /usr/lib/libGLX_amber.so.0.0.0
+#   /usr/lib/libGLX.so.0.0.0
+#   /usr/lib32/libGLX.so.0.0.0
+#   /usr/lib32/libGLX_amber.so.0.0.0
+
+# pacman -S mesa mesa-amber
+# resolving dependencies...
+# looking for conflicting packages...
+# warning: removing 'mesa-1:25.1.4-2' from target list because it conflicts with 'mesa-amber-21.3.9-6'
+# warning: dependency cycle detected:
+# warning: mesa-amber will be installed before its libglvnd dependency
+#
+# That means we cannot have lib_GLX_mesa.so and libOSmesa.so at the same time :((
+#
 
 # create and run as user rv
 RUN useradd -u 1001 -ms /bin/bash rv
