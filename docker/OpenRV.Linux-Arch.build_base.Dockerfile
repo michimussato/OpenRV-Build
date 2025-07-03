@@ -103,7 +103,7 @@ RUN \
 
 # copied from Arch with mesa-amber:
 # /usr/lib/libOSMesa.so.8.0.0
-COPY docker/so/arch/libOSMesa.so.8.0.0 /usr/lib/
+COPY docker/so/arch/usr/lib/libOSMesa.so.8.0.0 /usr/lib/
 RUN chmod 755 /usr/lib/libOSMesa.so.8.0.0
 RUN ln -s /usr/lib/libOSMesa.so.8.0.0 /usr/lib/libOSMesa.so.8
 RUN ln -s /usr/lib/libOSMesa.so.8 /usr/lib/libOSMesa.so
