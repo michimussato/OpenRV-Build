@@ -103,10 +103,22 @@ RUN \
 
 # copied from Arch with mesa-amber:
 # /usr/lib/libOSMesa.so.8.0.0
-COPY docker/so/arch/libOSMesa.so.8.0.0 /var/lib/
-RUN chmod 755 /var/lib/libOSMesa.so.8.0.0
-RUN ln -s /var/lib/libOSMesa.so.8.0.0 /var/lib/libOSMesa.so.8
-RUN ln -s /var/lib/libOSMesa.so.8 /var/lib/libOSMesa.so
+COPY docker/so/arch/libOSMesa.so.8.0.0 /usr/lib/
+RUN chmod 755 /usr/lib/libOSMesa.so.8.0.0
+RUN ln -s /usr/lib/libOSMesa.so.8.0.0 /usr/lib/libOSMesa.so.8
+RUN ln -s /usr/lib/libOSMesa.so.8 /usr/lib/libOSMesa.so
+
+
+## https://archlinux.org/packages/extra/x86_64/mesa-amber/
+## amber -> mesa
+## usr/lib/libEGL_amber.so
+## usr/lib/libEGL_amber.so.0
+## usr/lib/libEGL_amber.so.0.0.0
+## usr/lib/libGLX_amber.so
+## usr/lib/libGLX_amber.so.0
+## usr/lib/libGLX_amber.so.0.0.0
+#RUN ln -s /var/lib/libOSMesa.so.8.0.0 /var/lib/libOSMesa.so.8
+
 
 # libGLX_mesa.so
 # - Manjaro
@@ -174,6 +186,7 @@ RUN pyenv install 3.10.13
 # Set as the global version
 RUN pyenv global 3.10.13
 
+RUN python -m pip install --upgrade pip
 RUN python -m pip install aqtinstall
 
 RUN \
