@@ -1,10 +1,12 @@
 FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # Build:
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_base:$(date +"%Y-%m-%d_%H-%M-%S") .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_rocky9_build_base:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_base:$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a docker/openrv_linux_rocky9_build_base__stdout.log) 2> >(tee -a docker/openrv_linux_rocky9_build_base__stderr.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
 # docker run --hostname openrv_linux_rocky9_build_base --rm --name openrv_linux_rocky9_build_base openstudiolandscapes/openrv_linux_rocky9_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# As root:
+# docker run --user root [...]
 #
 # Exec:
 # docker container exec --interactive --tty openrv_linux_rocky9_build_base /bin/bash
@@ -14,6 +16,8 @@ FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # LABEL maintainer="Michael Mussato"
 
 USER root
+
+WORKDIR /root
 
 # enable epel crb and devel packages
 RUN \
@@ -116,6 +120,7 @@ RUN pyenv install 3.10.13
 # Set as the global version
 RUN pyenv global 3.10.13
 
+RUN python -m pip install --upgrade pip
 RUN python -m pip install aqtinstall
 
 RUN \

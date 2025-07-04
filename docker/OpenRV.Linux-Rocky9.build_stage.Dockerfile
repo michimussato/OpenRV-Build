@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_rocky9_build_base:latest AS openrv_linux_rocky9_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Rocky9.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:latest --tag openstudiolandscapes/openrv_linux_rocky9_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build . > >(tee -a docker/openrv_linux_rocky9_build_stage__stdout.log) 2> >(tee -a docker/openrv_linux_rocky9_build_stage__stderr.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -47,6 +47,7 @@ WORKDIR ${OPENRV_REPO_DIR}
 RUN \
     git clone \
     --recursive \
+    --depth 1 \
     https://github.com/AcademySoftwareFoundation/OpenRV.git \
     .
 
@@ -67,7 +68,7 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvsetup]}
 # -> rvenv && SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r /home/rv/OpenRV/requirements.txt
 RUN \
-    . ${ACTIVATE} && \
+    . ${ACTIVATE} && pip install --upgrade pip && \
     SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}

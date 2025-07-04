@@ -1,11 +1,12 @@
 FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 # Build:
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_arch_build_base:latest --tag openstudiolandscapes/openrv_linux_arch_build_base:$(date +"%Y-%m-%d_%H-%M-%S") .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_arch_build_base:latest --tag openstudiolandscapes/openrv_linux_arch_build_base:$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a docker/openrv_linux_arch_build_base__stdout.log) 2> >(tee -a docker/openrv_linux_arch_build_base__stderr.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
 # docker run --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
-# docker run --user root --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# As root:
+# docker run --user root [...]
 #
 # Exec:
 # docker container exec --interactive --tty openrv_linux_arch_build_base /bin/bash
@@ -100,16 +101,6 @@ RUN \
         --output cmake.sh && \
     sh cmake.sh --prefix=/usr/local/ --skip-license && \
     rm -rf cmake.sh
-
-
-## workaround when using mesa
-## - [ ] working?
-## copied from Arch with mesa-amber:
-## /usr/lib/libOSMesa.so.8.0.0
-#COPY docker/so/arch/usr/lib/libOSMesa.so.8.0.0 /usr/lib/
-#RUN chmod 755 /usr/lib/libOSMesa.so.8.0.0
-#RUN ln -s /usr/lib/libOSMesa.so.8.0.0 /usr/lib/libOSMesa.so.8
-#RUN ln -s /usr/lib/libOSMesa.so.8 /usr/lib/libOSMesa.so
 
 
 # workaround when using mesa-amber

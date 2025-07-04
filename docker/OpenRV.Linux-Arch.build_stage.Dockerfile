@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_arch_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_arch_build_stage:latest --tag openstudiolandscapes/openrv_linux_arch_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build .
+# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_arch_build_stage:latest --tag openstudiolandscapes/openrv_linux_arch_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build . > >(tee -a docker/openrv_linux_arch_build_base__stdout.log) 2> >(tee -a docker/openrv_linux_arch_build_base__stderr.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
@@ -52,6 +52,7 @@ WORKDIR ${OPENRV_REPO_DIR}
 RUN \
     git clone \
     --recursive \
+    --depth 1 \
     https://github.com/AcademySoftwareFoundation/OpenRV.git \
     .
 
@@ -79,33 +80,33 @@ ENV ACTIVATE=${OPENRV_REPO_DIR}/.venv/bin/activate
 # #9 27.16
 # #9 27.74 CMake Generate step failed.  Build files cannot be regenerated correctly.
 
-RUN \
-    . ${ACTIVATE} && \
-    SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt
+
+# jpeg
+# cd /home/rv/OpenRV/_build/RV_DEPS_JPEGTURBO/build && /usr/local/bin/cmake --install /home/rv/OpenRV/_build/RV_DEPS_JPEGTURBO/build --prefix /home/rv/OpenRV/_build/RV_DEPS_JPEGTURBO/install --config Release && /usr/local/bin/cmake -E touch /home/rv/OpenRV/_build/cmake/dependencies/RV_DEPS_JPEGTURBO-prefix/src/RV_DEPS_JPEGTURBO-stamp/RV_DEPS_JPEGTURBO-install
+# cd /home/rv/OpenRV/_build/cmake/dependencies && /usr/local/bin/cmake -E copy /home/rv/OpenRV/_build/RV_DEPS_JPEGTURBO/install/lib/libjpeg.so.62 /home/rv/OpenRV/_build/stage/app/lib
+#                                                                              /home/rv/OpenRV/_build/RV_DEPS_JPEGTURBO/install/lib64/libjpeg.so.62
+# cd /home/rv/OpenRV/_build/RV_DEPS_GLEW/src && cd auto && make && cd .. && make && /usr/local/bin/cmake -E touch /home/rv/OpenRV/_build/cmake/dependencies/RV_DEPS_GLEW-prefix/src/RV_DEPS_GLEW-stamp/RV_DEPS_GLEW-configure
 
 
+
 RUN \
-    . ${ACTIVATE} && \
+    . ${ACTIVATE} && pip install --upgrade pip && \
+    SETUPTOOLS_USE_DISTUTILS= python3 -m pip install --upgrade -r ${OPENRV_REPO_DIR}/requirements.txt && \
+    \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvcfg]}
     # -> rvenv && cmake -B /home/rv/OpenRV/_build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=/home/rv/Qt/5.15.2/gcc_64 -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT=
     # More Args (BUILD_ARGS):
     #  -Wno-dev
-    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" ${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}"
+    cmake -B ${OPENRV_REPO_DIR}/_build -G "${CMAKE_GENERATOR}" ${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Release -DRV_DEPS_QT5_LOCATION=${QT_HOME} -DRV_VFX_PLATFORM=CY2023 -DRV_DEPS_WIN_PERL_ROOT= -DRV_FFMPEG_NON_FREE_DECODERS_TO_ENABLE="${FFMPEG_NON_FREE_DECODERS_TO_ENABLE}" -DRV_FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="${FFMPEG_NON_FREE_ENCODERS_TO_ENABLE}" && \
+    \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
-RUN \
-    . ${ACTIVATE} && \
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies
-
-RUN \
-    . ${ACTIVATE} && \
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
+    \
     # RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
     # -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
-
-RUN \
-    . ${ACTIVATE} && \
-    cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release
+    cmake --install ${OPENRV_REPO_DIR}/_build --prefix ${RV_INST} --config Release && \
     # Todo
     # - [ ] Cleanup ${HOME}/OpenRV/_build
     # - [ ] Cleanup ${HOME}/OpenRV/_install
@@ -117,7 +118,7 @@ RUN \
     # $ du -hs ${HOME}/Qt
     # 4.4G    /home/rv/Qt
     # rm -rf ${OPENRV_REPO_DIR}/_build && \
-    # rm -rf ${HOME}/Qt
+    rm -rf ${HOME}/Qt
 
 
 ENV ENVIRONMENT="${OPENRV_REPO_DIR}/environment"
