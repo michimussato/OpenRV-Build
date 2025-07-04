@@ -1,6 +1,6 @@
 FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 # Build:
-# export DOCKERFILE="OpenRV.Linux-Arch.build_base.Dockerfile" && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a ./docker/${DOCKERFILE}.STDOUT.log) 2> >(tee -a ./docker/{DOCKERFILE}.STDERR.log >&2) && unset DOCKERFILE
+# export DOCKERFILE="OpenRV.Linux-Arch.build_base.Dockerfile" && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a ./docker/${DOCKERFILE}.STDOUT.log) 2> >(tee -a ./docker/${DOCKERFILE}.STDERR.log >&2) && unset DOCKERFILE
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
