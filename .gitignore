@@ -54,58 +54,10 @@ MANIFEST
 .conda*/
 .python-version
 
-# Landscapes
-.landscapes/*/
-docker/.volumes/.landscapes/*/
-!docker/.volumes/.landscapes/.gitkeep
+# Docker Tarballs
+docker/tarballs/*
+!docker/tarballs/.gitkeep
 
-# Features
-.features/*
-!.features/.gitkeep
-
-# Dagster
-.env
-.dagster/*
-!.dagster/.gitkeep
-!.dagster/dagster.yaml
-.dagster-postgres/*
-!.dagster-postgres/.gitkeep
-tmp*/
-
-# Harbor
-!.harbor/
-
-.harbor/data/*
-!.harbor/data/.gitkeep
-
-.harbor/bin/*
-!.harbor/bin/.gitkeep
-
-.harbor/download/*
-!.harbor/download/.gitkeep
-
-# Pi-hole
-.pi-hole/*
-!.pi-hole/.gitkeep
-
-# Payloads
-.payload/data/
-.payload/bin/
-
-# Obsidian
-.obsidian/hotkeys.json
-.obsidian/workspace.json
-.obsidian/workspaces.json
-
-# Media
-/media/Blender/.out/*
-!/media/Blender/.out/.gitkeep
-
-# Docker
-!docker/.volumes/
-
-docker/.volumes/dagster/dagster-home/*
-!docker/.volumes/dagster/dagster-home/dagster.yaml
-
-docker/.volumes/postgres-dagster/*
-!docker/.volumes/postgres-dagster/.gitkeep
+# Apptainers
+apptainer/sif/*
+!apptainer/sif/.gitkeep

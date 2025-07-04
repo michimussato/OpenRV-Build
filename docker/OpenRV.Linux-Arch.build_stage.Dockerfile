@@ -5,10 +5,10 @@ FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_ar
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
-# docker run --hostname openrv_linux_arch_build_stage --rm --name openrv_linux_arch_build_stage openstudiolandscapes/openrv_linux_arch_build_stage:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# export DOCKERFILE="OpenRV.Linux-Arch.build_stage.Dockerfile" && docker run --hostname $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') --rm --name $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest /bin/bash -c "trap : TERM INT; sleep infinity & wait" && unset DOCKERFILE
 #
 # Exec bash:
-# docker container exec --interactive --tty openrv_linux_arch_build_stage /bin/bash
+# export DOCKERFILE="OpenRV.Linux-Arch.build_stage.Dockerfile" && docker container exec --interactive --tty $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') /bin/bash && unset DOCKERFILE
 # # Exec rv:
 # # docker container exec --interactive --tty openrv_linux_arch_build_stage /home/rv/OpenRV/_install/bin/rv
 #

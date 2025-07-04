@@ -4,12 +4,12 @@ FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
-# docker run --hostname openrv_linux_arch_build_base --rm --name openrv_linux_arch_build_base openstudiolandscapes/openrv_linux_arch_build_base:latest /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+# export DOCKERFILE="OpenRV.Linux-Arch.build_base.Dockerfile" && docker run --hostname $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') --rm --name $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest /bin/bash -c "trap : TERM INT; sleep infinity & wait" && unset DOCKERFILE
 # As root:
 # docker run --user root [...]
 #
 # Exec:
-# docker container exec --interactive --tty openrv_linux_arch_build_base /bin/bash
+# export DOCKERFILE="OpenRV.Linux-Arch.build_base.Dockerfile" && docker container exec --interactive --tty $(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g') /bin/bash && unset DOCKERFILE
 
 # Tested and verified: [x] (2025-06-26)
 
