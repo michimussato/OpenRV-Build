@@ -53,9 +53,18 @@ WORKDIR ${OPENRV_REPO_DIR}
 RUN \
     git clone \
         --recursive \
+        --depth 1 \
         https://github.com/AcademySoftwareFoundation/OpenRV.git \
-        . && \
-    git checkout fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
+        .
+#         . && \
+#     git checkout fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
+
+##9 698.8
+ ##9 699.0 fatal: No annotated tags can describe 'fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed'.
+ ##9 699.0 However, there were unannotated tags: try --tags.
+ ##9 699.4 CMake Deprecation Warning at ApiExtractor/CMakeLists.txt:3 (cmake_minimum_required):
+ ##9 699.4   Compatibility with CMake < 3.5 will be removed from a future version of
+ ##9 699.4   CMake.
 
 # RUN echo 'source ${OPENRV_REPO_DIR}/rvcmds.sh' >> ~/.bashrc
 

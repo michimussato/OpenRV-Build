@@ -51,10 +51,10 @@ WORKDIR ${OPENRV_REPO_DIR}
 
 RUN \
     git clone \
-    --recursive \
-    --depth 1 \
-    https://github.com/AcademySoftwareFoundation/OpenRV.git \
-    .
+        --recursive \
+        --depth 1 \
+        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        .
 
 # RUN echo 'source ${OPENRV_REPO_DIR}/rvcmds.sh' >> ~/.bashrc
 
