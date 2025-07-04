@@ -1,7 +1,7 @@
 FROM openstudiolandscapes/openrv_linux_arch_build_base:latest AS openrv_linux_arch_build_stage
 # Build:
 # CMAKE_GENERATOR: "Ninja" or "Unix Makefiles" (https://aur.archlinux.org/packages/openrv-git)
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_stage.Dockerfile --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/openrv_linux_arch_build_stage:latest --tag openstudiolandscapes/openrv_linux_arch_build_stage:$(date +"%Y-%m-%d_%H-%M-%S") --output ./build . > >(tee -a docker/openrv_linux_arch_build_base__stdout.log) 2> >(tee -a docker/openrv_linux_arch_build_base__stderr.log >&2)
+# DOCKERFILE="OpenRV.Linux-Arch.build_stage.Dockerfile" && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --build-arg BUILD_ARGS="-Wno-dev" --build-arg CMAKE_GENERATOR="Ninja" --build-arg FFMPEG_NON_FREE_DECODERS_TO_ENABLE="aac;hevc" --build-arg FFMPEG_NON_FREE_ENCODERS_TO_ENABLE="aac" --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") --output ./tarballs . > >(tee -a ${DOCKERFILE}.STDOUT.log) 2> >(tee -a {DOCKERFILE}.STDERR.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196

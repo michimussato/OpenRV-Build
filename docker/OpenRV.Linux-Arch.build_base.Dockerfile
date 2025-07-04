@@ -1,6 +1,6 @@
 FROM archlinux/archlinux:latest AS openrv_linux_arch_build_base
 # Build:
-# /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/OpenRV.Linux-Arch.build_base.Dockerfile --progress plain --tag openstudiolandscapes/openrv_linux_arch_build_base:latest --tag openstudiolandscapes/openrv_linux_arch_build_base:$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a docker/openrv_linux_arch_build_base__stdout.log) 2> >(tee -a docker/openrv_linux_arch_build_base__stderr.log >&2)
+# DOCKERFILE="OpenRV.Linux-Arch.build_base.Dockerfile" && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a ${DOCKERFILE}.STDOUT.log) 2> >(tee -a {DOCKERFILE}.STDERR.log >&2)
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
