@@ -44,12 +44,18 @@ ENV RV_TARBALL="${OPENRV_REPO_DIR}/_tarball"
 
 WORKDIR ${OPENRV_REPO_DIR}
 
+# https://github.com/AcademySoftwareFoundation/OpenRV/commits/main/
+# Working [Y]/[N]:
+# (NEWER)
+# - [N] 94f941240c4eac1ca0414b5a709084bb0e8ef23c
+# - [ ] fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
+# (OLDER)
 RUN \
     git clone \
-    --recursive \
-    --depth 1 \
-    https://github.com/AcademySoftwareFoundation/OpenRV.git \
-    .
+        --recursive \
+        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        . && \
+    git checkout fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
 
 # RUN echo 'source ${OPENRV_REPO_DIR}/rvcmds.sh' >> ~/.bashrc
 
