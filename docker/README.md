@@ -24,7 +24,7 @@ Build the image from the OpenRV-Rocky9-Docker directory. Replace your_qt_usernam
 
 ```shell
 set -a
-source ../.env  # if there is one, otherwise fill in the args manually
+source .env  # if there is one, otherwise fill in the args manually
 set +a
 
 /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' \

@@ -87,7 +87,7 @@ sudo dnf install apptainer time
 ## Build
 
 ```
-/usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer build --notest --build-arg-file .env --warn-unused-build-args OpenRV.sif apptainer/OpenRV.def
+export APPTAINERFILE="OpenRV.def" TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S") && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer --config ./apptainer/conf/apptainer.conf --verbose build --build-arg-file .env --warn-unused-build-args ./apptainer/sif/OpenRV_${TIMESTAMP}.sif ./apptainer/${APPTAINERFILE} > >(tee -a ./apptainer/logs/${APPTAINERFILE}.${TIMESTAMP}.STDOUT.log) 2> >(tee -a ./apptainer/logs/${APPTAINERFILE}.${TIMESTAMP}.STDERR.log >&2) && unset APPTAINERFILE TIMESTAMP
 ```
 
 ## Non Free Codecs
@@ -130,7 +130,7 @@ apptainer exec --nv --bind /run/user/$UID,/Volumes,/run/media/$USER OpenRV.sif /
 - [x] Manjaro
 
 ```
-$ apptainer exec --nv OpenRV.sif  /build/OpenRV/_install/bin/rv                                                127 ✘ 
+$ apptainer exec --nv OpenRV.sif  /build/OpenRV/_install/bin/rv
 /build/OpenRV/_install/bin/rv.bin: /lib64/libc.so.6: version `GLIBC_2.38' not found (required by /.singularity.d/libs/libGLX.so.0)
 /build/OpenRV/_install/bin/rv.bin: /lib64/libc.so.6: version `GLIBC_2.38' not found (required by /.singularity.d/libs/libGLdispatch.so.0)
 ```
