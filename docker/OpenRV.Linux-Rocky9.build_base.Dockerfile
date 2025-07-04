@@ -1,6 +1,6 @@
 FROM rockylinux/rockylinux:9 AS openrv_linux_rocky9_build_base
 # Build:
-# export DOCKERFILE="OpenRV.Linux-Rocky9.build_base.Dockerfile" TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S") && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a ./docker/logs/${DOCKERFILE}.${TIMESTAMP}.STDOUT.log) 2> >(tee -a ./docker/logs/${DOCKERFILE}.${TIMESTAMP}.STDERR.log >&2) && unset DOCKERFILE TIMESTAMP
+# export DOCKERFILE="OpenRV.Linux-Rocky9.build_base.Dockerfile" TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S") && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' docker build --file ./docker/${DOCKERFILE} --progress plain --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):latest --tag openstudiolandscapes/$(echo ${DOCKERFILE,,} | sed -r 's/[-. ]+/_/g'):$(date +"%Y-%m-%d_%H-%M-%S") . > >(tee -a ./docker/.logs/${DOCKERFILE}.${TIMESTAMP}.STDOUT.log) 2> >(tee -a ./docker/.logs/${DOCKERFILE}.${TIMESTAMP}.STDERR.log >&2) && unset DOCKERFILE TIMESTAMP
 #
 # Run (attached):
 # Ref: https://stackoverflow.com/a/55734437/2207196
