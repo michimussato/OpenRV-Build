@@ -41,6 +41,7 @@ ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=""
 ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
 ARG CMAKE_GENERATOR="Ninja"
 ARG BUILD_ARGS=""
+ARG CHECKOUT="main"
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
@@ -54,7 +55,8 @@ RUN \
         --recursive \
         --depth 1 \
         https://github.com/AcademySoftwareFoundation/OpenRV.git \
-        .
+        . && \
+    git checkout ${CHECKOUT}
 
 # RUN echo 'source ${OPENRV_REPO_DIR}/rvcmds.sh' >> ~/.bashrc
 

@@ -36,6 +36,7 @@ ARG FFMPEG_NON_FREE_DECODERS_TO_ENABLE=""
 ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
 ARG CMAKE_GENERATOR="Ninja"
 ARG BUILD_ARGS=""
+ARG CHECKOUT="main"
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
@@ -45,9 +46,9 @@ ENV RV_TARBALL="${OPENRV_REPO_DIR}/_tarball"
 WORKDIR ${OPENRV_REPO_DIR}
 
 # https://github.com/AcademySoftwareFoundation/OpenRV/commits/main/
-# Working [Y]/[N]:
+# Functional [Y]/[N]:
 # (NEWER)
-# - [N] 94f941240c4eac1ca0414b5a709084bb0e8ef23c
+# - [Y] 94f941240c4eac1ca0414b5a709084bb0e8ef23c
 # - [ ] fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
 # (OLDER)
 RUN \
@@ -55,9 +56,8 @@ RUN \
         --recursive \
         --depth 1 \
         https://github.com/AcademySoftwareFoundation/OpenRV.git \
-        .
-#         . && \
-#     git checkout fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed
+        . && \
+    git checkout ${CHECKOUT}
 
 ##9 698.8
  ##9 699.0 fatal: No annotated tags can describe 'fda7d8dcc4fe56bbac156e5af4440ab8bf7f7aed'.
