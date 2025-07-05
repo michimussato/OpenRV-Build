@@ -89,9 +89,6 @@ sudo reboot now
 
 ```shell
 sudo dnf install -y \
-    tcsh \
-    mesa-libGLU \
-    libglvnd-opengl \
     time \
     apptainer
 ```
