@@ -58,13 +58,13 @@ MANIFEST
 .env
 
 # logs
-*/logs/*
-!*/logs/.gitkeep
+*/.logs/*
+!*/.logs/.gitkeep
 
 # Docker Tarballs
-docker/tarballs/*
-!docker/tarballs/.gitkeep
+docker/.tarballs/*
+!docker/.tarballs/.gitkeep
 
 # Apptainers
-apptainer/sif/*
-!apptainer/sif/.gitkeep
+apptainer/.sif/*
+!apptainer/.sif/.gitkeep
