@@ -37,6 +37,7 @@ ARG FFMPEG_NON_FREE_ENCODERS_TO_ENABLE=""
 ARG CMAKE_GENERATOR="Ninja"
 ARG BUILD_ARGS=""
 ARG CHECKOUT="main"
+ARG PARALLEL_JOBS="$(nproc)"
 
 ENV QT_HOME="${HOME}/Qt/5.15.2/gcc_64"
 ENV OPENRV_REPO_DIR="${HOME}/OpenRV"
@@ -94,8 +95,8 @@ RUN \
     \
     # RUN source ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvbuildt]}
     # -> rvenv && cmake --build /home/rv/OpenRV/_build --config Release -v --parallel=8 --target
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target dependencies && \
-    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=$(nproc) --target main_executable && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=${PARALLEL_JOBS} --target dependencies && \
+    cmake --build ${OPENRV_REPO_DIR}/_build --config Release -v --parallel=${PARALLEL_JOBS} --target main_executable && \
     \
     # RUN . ${OPENRV_REPO_DIR}/rvcmds.sh && echo ${BASH_ALIASES[rvinst]}
     # -> rvenv && cmake --install /home/rv/OpenRV/_build --prefix /home/rv/OpenRV/_install --config Release
