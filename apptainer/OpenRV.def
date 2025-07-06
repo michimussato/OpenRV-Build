@@ -95,9 +95,8 @@ From: rockylinux/rockylinux:9
         # Download ninja from GitHub to get a more recent version.
         wget https://github.com/ninja-build/ninja/releases/download/v{{ NINJA_VERSION }}/ninja-linux.zip
         unzip ninja-linux.zip -d ./ninja
-    '
 
-        echo 'export PATH=${HOME}/ninja:${PATH}' >> ${HOME}/.bash_profile
+        echo "export PATH=\"\${HOME}/ninja:\${PATH}\"" >> ${HOME}/.bash_profile
         export PATH="${HOME}/ninja:${PATH}"
 
         # Using pyenv to make sure that python and python3 command points to the same version.
@@ -105,11 +104,10 @@ From: rockylinux/rockylinux:9
         git clone http://github.com/pyenv/pyenv.git ${HOME}/.pyenv
         export PYENV_ROOT="${HOME}/.pyenv"
         export PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
-        echo 'export PYENV_ROOT="${HOME}/.pyenv"' >> ~/.bashrc
-        echo 'export PATH="$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-        echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+        echo "export PYENV_ROOT=\"\${HOME}/.pyenv\"" >> ~/.bashrc
+        echo "export PATH=\"\${PYENV_ROOT}/shims:\${PYENV_ROOT}/bin:\${PATH}\" >> ~/.bashrc
+        echo "eval \"\$(pyenv init -)\"" >> ~/.bashrc
 
-    FAKEROOTDONTTRYCHOWN=1 fakeroot bash -c '
         # Install specific version of Python
         pyenv install {{ PY_ENV_PYHON }}
 
