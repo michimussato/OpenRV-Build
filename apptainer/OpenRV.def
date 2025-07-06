@@ -137,11 +137,8 @@ From: rockylinux/rockylinux:9
     pushd /build/OpenRV
     git clone \
         --recursive \
-        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        https://github.com/michimussato/OpenStudioLandscapes-ASWF-OpenRV.git \
         .
-    # git clone --recursive --depth 1 https://github.com/AcademySoftwareFoundation/OpenRV.git
-
-    # export QT_HOME="{{ QT_ROOT }}/{{ QT_HOME_VERSION }}/gcc_64"
 
     export RV_INST="{{ RV_INST }}"
 

@@ -54,8 +54,7 @@ WORKDIR ${OPENRV_REPO_DIR}
 RUN \
     git clone \
         --recursive \
-        --depth 1 \
-        https://github.com/AcademySoftwareFoundation/OpenRV.git \
+        https://github.com/michimussato/OpenStudioLandscapes-ASWF-OpenRV.git \
         . && \
     git checkout ${CHECKOUT}
 
