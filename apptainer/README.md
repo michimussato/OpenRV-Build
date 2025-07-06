@@ -87,7 +87,7 @@ sudo dnf install apptainer time
 ## Build
 
 ```
-export APPTAINERFILE="OpenRV.def" TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S") && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer --config ./apptainer/conf/apptainer.conf --verbose build --build-arg-file .env --warn-unused-build-args ./apptainer/sif/OpenRV_${TIMESTAMP}.sif ./apptainer/${APPTAINERFILE} > >(tee -a ./apptainer/logs/${APPTAINERFILE}.${TIMESTAMP}.STDOUT.log) 2> >(tee -a ./apptainer/logs/${APPTAINERFILE}.${TIMESTAMP}.STDERR.log >&2) && unset APPTAINERFILE TIMESTAMP
+export APPTAINERFILE="OpenRV.def" TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S") && /usr/bin/time -f 'Commandline Args: %C\nElapsed Time: %E\nPeak Memory: %M\nExit Code: %x' apptainer --config ./apptainer/conf/apptainer.conf --verbose build --ignore-fakeroot-command --build-arg-file .env --warn-unused-build-args ./apptainer/.sif/OpenRV_${TIMESTAMP}.sif ./apptainer/${APPTAINERFILE} > >(tee -a ./apptainer/.logs/${APPTAINERFILE}.${TIMESTAMP}.STDOUT.log) 2> >(tee -a ./apptainer/.logs/${APPTAINERFILE}.${TIMESTAMP}.STDERR.log >&2) && unset APPTAINERFILE TIMESTAMP
 ```
 
 ## Non Free Codecs
